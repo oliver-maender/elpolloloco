@@ -8,8 +8,7 @@ let lastMove = 'right';
 let lastJumpStarted = 0;
 let bg_elements = 0;
 let currentCharacterImage = './img/pepe/idle/I-1.png';
-let characterGraphicsRight = ['./img/pepe/idle/I-1.png', './img/pepe/walking/W-22.png', './img/pepe/walking/W-25.png'];
-let characterGraphicsLeft = ['./img/pepe/idle/I-1.png', './img/pepe/walking/W-22.png', './img/pepe/walking/W-25.png'];
+let characterGraphics = ['./img/pepe/idle/I-1.png', './img/pepe/walking/W-22.png', './img/pepe/walking/W-25.png'];
 let characterGraphicsIndex = 0;
 let cloudOffset = 0;
 let backgroundPosition = 0;
@@ -17,7 +16,7 @@ let backgroundPosition = 0;
 // Game config
 
 let JUMP_TIME = 300; // in ms
-let GAME_SPEED = 4;
+let GAME_SPEED = 0.5;
 
 function init() {
 
@@ -63,7 +62,10 @@ function updateCharacter() {
             ctx.drawImage(base_image, character_x, character_y, base_image.width * 0.3, base_image.height * 0.3);
             ctx.restore();
         }
-        if (isMovingRight || ((!isMovingRight && !isMovingLeft) && lastMove == 'right')) {
+        if((!isMovingRight && !isMovingLeft) && lastMove == 'right') {
+            ctx.drawImage(base_image, character_x, character_y, base_image.width * 0.3, base_image.height * 0.3);
+        }
+        if (isMovingRight) {
             ctx.drawImage(base_image, character_x, character_y, base_image.width * 0.3, base_image.height * 0.3);
             lastMove = 'right';
         }
@@ -83,22 +85,19 @@ function checkForRunning() {
 
     setInterval(function () {
 
-        if (isMovingRight) {
+        if (isMovingRight || isMovingLeft) {
 
-            let index = characterGraphicsIndex % characterGraphicsRight.length;
+            let index = characterGraphicsIndex % characterGraphics.length;
 
-            currentCharacterImage = characterGraphicsRight[index];
+            currentCharacterImage = characterGraphics[index];
             characterGraphicsIndex++;
 
         }
 
-        if (isMovingLeft) {
-
-            let index = characterGraphicsIndex % characterGraphicsRight.length;
-
-            currentCharacterImage = characterGraphicsLeft[index];
-            characterGraphicsIndex++;
-
+        if(!isMovingRight && !isMovingLeft) {
+            let index = 0;
+            currentCharacterImage = characterGraphics[index];
+            characterGraphicsIndex = 0;
         }
 
     }, 50);
@@ -117,7 +116,7 @@ function calculateCloudOffset() {
 function draw() {
 
     drawBackground();
-    drawGround();
+    // drawGround();
     updateCharacter();
     requestAnimationFrame(draw);
 
@@ -125,10 +124,24 @@ function draw() {
 
 function drawBackground() {
 
-    ctx.fillStyle = "white";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    drawBackgroundObject('./img/background/sky.png', 0, 0, 0.534, 0.534, 1);
 
-    drawBackgroundObject('./img/background/clouds/1.png', 0 - cloudOffset, 0, 0.5, 0.5, 1);
+    for (let i = 0; i < 5; i = i + 2) {
+
+        drawBackgroundObject('./img/background/clouds/complete.png', (0 - cloudOffset) + canvas.width * i, 0, 0.534, 0.534, 1);
+        drawBackgroundObject('./img/background/background3/complete.png', (0 - backgroundPosition) + canvas.width * i, 0, 0.534, 0.534, 1);
+        drawBackgroundObject('./img/background/background2/complete.png', (0 - backgroundPosition) + canvas.width * i, 0, 0.534, 0.534, 1);
+        drawBackgroundObject('./img/background/background1/complete.png', (0 - backgroundPosition) + canvas.width * i, 0, 0.534, 0.534, 1);
+
+        if (isMovingLeft) {
+            backgroundPosition = backgroundPosition - GAME_SPEED;
+        }
+    
+        if (isMovingRight) {
+            backgroundPosition = backgroundPosition + GAME_SPEED;
+        }
+
+    }
 
 }
 
@@ -141,12 +154,6 @@ function drawGround() {
     // drawBackgroundObject('./img/background/background2/1.png', (0 - backgroundPosition), 0, 0.54, 0.54, 1);
     // drawBackgroundObject('./img/background/background1/1.png', (0 - backgroundPosition), 0, 0.54, 0.54, 1);
 
-    for (let i = 0; i < 10; i = i + 2) {
-
-        drawBackgroundObject('./img/background/background1/complete.png', (0 - backgroundPosition) + canvas.width * i, 0, 0.534, 0.534, 1);
-
-    }
-
     // drawBackgroundObject('./img/background/background1/complete.png', (0 - backgroundPosition), 0, 0.534, 0.534, 1);
     // drawBackgroundObject('./img/background/background1/complete.png', (0 - backgroundPosition) + canvas.width * 4, 0, 0.534, 0.534, 1);
     // drawBackgroundObject('./img/background/background1/complete.png', (0 - backgroundPosition) + canvas.width * 6, 0, 0.534, 0.534, 1);
@@ -154,17 +161,6 @@ function drawGround() {
     // if(!isMovingLeft && !isMovingRight) {
     //     drawBackgroundObject('./img/background/background1/1.png', 0 - backgroundPosition, -400, 1, 1, 1);
     // }
-
-    if (isMovingLeft) {
-        // bg_elements = bg_elements + GAME_SPEED;
-        // drawBackgroundObject('./img/background/background1/1.png', 0 - backgroundPosition, -400, 1, 1, 1);
-        backgroundPosition--;
-    }
-
-    if (isMovingRight) {
-        // bg_elements = bg_elements - GAME_SPEED;
-        backgroundPosition++;
-    }
 
 }
 
