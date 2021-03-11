@@ -2,6 +2,7 @@ let canvas;
 let ctx;
 let character_x = 100;
 let character_y = 150;
+let character_lives = 100;
 let isMovingRight = false;
 let isMovingLeft = false;
 let lastMove = 'right';
@@ -32,21 +33,44 @@ function init() {
     checkForRunning();
 
     draw();
+
     calculateCloudOffset();
     listenForKeys();
     calculateChickenPosition();
+    checkForCollision();
+
+}
+
+function checkForCollision() {
+
+    setInterval(function () {
+
+        for (let i = 0; i < chickens.length; i++) {
+            let chicken = chickens[i];
+
+            if ((chicken.position_x - 40) < character_x && (chicken.position_x + 40) > character_x) {
+
+                if (character_lives > 0) {
+                    character_lives = character_lives - 20;
+                }
+
+            }
+
+        }
+
+    }, 2000);
 
 }
 
 function calculateChickenPosition() {
 
-    setInterval(function() {
+    setInterval(function () {
 
         for (let i = 0; i < chickens.length; i++) {
-        
+
             let chicken = chickens[i];
             chicken.position_x = chicken.position_x - chicken.speed;
-            
+
         }
 
     }, 50);
@@ -154,6 +178,7 @@ function draw() {
     // drawGround();
     updateCharacter();
     drawChicken();
+    drawUI();
     requestAnimationFrame(draw);
 
 }
@@ -239,6 +264,12 @@ function createChicken(type, position_x, position_y) {
     }
 }
 
+function drawUI() {
+
+    drawBackgroundObject('./img/pepe/lives/lives_' + character_lives + '.png', 10, 0, 0.4, 0.4, 1);
+
+}
+
 // function drawBackgroundObjectReverse(src, offsetX, offsetY, scaleX, scaleY, opacity) {
 
 //     if(opacity != undefined) {
@@ -264,8 +295,6 @@ function listenForKeys() {
     document.addEventListener('keydown', e => {
 
         const k = e.key;
-
-        console.log(k);
 
         if (k == 'ArrowRight') {
             isMovingRight = true;
