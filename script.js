@@ -4,6 +4,7 @@ let character_x = 100;
 let character_y = 150;
 let isMovingRight = false;
 let isMovingLeft = false;
+let lastMove = 'right';
 let lastJumpStarted = 0;
 let bg_elements = 0;
 let currentCharacterImage = './img/pepe/idle/I-1.png';
@@ -55,40 +56,58 @@ function updateCharacter() {
     // }
 
     if (base_image.complete) {
-        ctx.drawImage(base_image, character_x, character_y, base_image.width * 0.3, base_image.height * 0.3);
+        if((!isMovingRight && !isMovingLeft) && lastMove == 'left') {
+            ctx.save();
+            ctx.translate(base_image.width * 0.6, 0);
+            ctx.scale(-1, 1);
+            ctx.drawImage(base_image, character_x, character_y, base_image.width * 0.3, base_image.height * 0.3);
+            ctx.restore();
+        }
+        if (isMovingRight || ((!isMovingRight && !isMovingLeft) && lastMove == 'right')) {
+            ctx.drawImage(base_image, character_x, character_y, base_image.width * 0.3, base_image.height * 0.3);
+            lastMove = 'right';
+        }
+        if (isMovingLeft) {
+            ctx.save();
+            ctx.translate(base_image.width * 0.6, 0);
+            ctx.scale(-1, 1);
+            ctx.drawImage(base_image, character_x, character_y, base_image.width * 0.3, base_image.height * 0.3);
+            ctx.restore();
+            lastMove = 'left';
+        }
     };
 
 }
 
 function checkForRunning() {
 
-    setInterval(function() {
+    setInterval(function () {
 
-        if(isMovingRight) {
+        if (isMovingRight) {
 
             let index = characterGraphicsIndex % characterGraphicsRight.length;
 
             currentCharacterImage = characterGraphicsRight[index];
             characterGraphicsIndex++;
-    
+
         }
-    
-        if(isMovingLeft) {
+
+        if (isMovingLeft) {
 
             let index = characterGraphicsIndex % characterGraphicsRight.length;
 
             currentCharacterImage = characterGraphicsLeft[index];
             characterGraphicsIndex++;
-            
+
         }
 
     }, 50);
-    
+
 }
 
 function calculateCloudOffset() {
-    
-    setInterval(function() {
+
+    setInterval(function () {
 
         cloudOffset = cloudOffset + 0.5;
 
@@ -118,19 +137,19 @@ function drawGround() {
     // ctx.fillStyle = "#ddbc00";
     // ctx.fillRect(0, canvas.height, canvas.width, -100);
 
-        // drawBackgroundObject('./img/background/background3/1.png', (0 - backgroundPosition), 0, 0.54, 0.54, 1);
-        // drawBackgroundObject('./img/background/background2/1.png', (0 - backgroundPosition), 0, 0.54, 0.54, 1);
-        // drawBackgroundObject('./img/background/background1/1.png', (0 - backgroundPosition), 0, 0.54, 0.54, 1);
+    // drawBackgroundObject('./img/background/background3/1.png', (0 - backgroundPosition), 0, 0.54, 0.54, 1);
+    // drawBackgroundObject('./img/background/background2/1.png', (0 - backgroundPosition), 0, 0.54, 0.54, 1);
+    // drawBackgroundObject('./img/background/background1/1.png', (0 - backgroundPosition), 0, 0.54, 0.54, 1);
 
-        for (let i = 0; i < 10; i = i + 2) {
+    for (let i = 0; i < 10; i = i + 2) {
 
-            drawBackgroundObject('./img/background/background1/complete.png', (0 - backgroundPosition) + canvas.width * i, 0, 0.534, 0.534, 1);
-            
-        }
+        drawBackgroundObject('./img/background/background1/complete.png', (0 - backgroundPosition) + canvas.width * i, 0, 0.534, 0.534, 1);
 
-        // drawBackgroundObject('./img/background/background1/complete.png', (0 - backgroundPosition), 0, 0.534, 0.534, 1);
-        // drawBackgroundObject('./img/background/background1/complete.png', (0 - backgroundPosition) + canvas.width * 4, 0, 0.534, 0.534, 1);
-        // drawBackgroundObject('./img/background/background1/complete.png', (0 - backgroundPosition) + canvas.width * 6, 0, 0.534, 0.534, 1);
+    }
+
+    // drawBackgroundObject('./img/background/background1/complete.png', (0 - backgroundPosition), 0, 0.534, 0.534, 1);
+    // drawBackgroundObject('./img/background/background1/complete.png', (0 - backgroundPosition) + canvas.width * 4, 0, 0.534, 0.534, 1);
+    // drawBackgroundObject('./img/background/background1/complete.png', (0 - backgroundPosition) + canvas.width * 6, 0, 0.534, 0.534, 1);
 
     // if(!isMovingLeft && !isMovingRight) {
     //     drawBackgroundObject('./img/background/background1/1.png', 0 - backgroundPosition, -400, 1, 1, 1);
@@ -151,7 +170,7 @@ function drawGround() {
 
 function drawBackgroundObject(src, offsetX, offsetY, scaleX, scaleY, opacity) {
 
-    if(opacity != undefined) {
+    if (opacity != undefined) {
         ctx.globalAlpha = opacity;
     }
 
