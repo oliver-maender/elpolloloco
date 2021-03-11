@@ -13,11 +13,12 @@ let characterGraphics = ['./img/pepe/idle/I-1.png', './img/pepe/walking/W-22.png
 let characterGraphicsIndex = 0;
 let cloudOffset = 0;
 let backgroundPosition = 0;
+let bottleThrowTime = 0;
 
 let chickenType1 = './img/gallinita/gallinita_centro.png';
 let chickenType2 = './img/pollito/pollito_centro.png';
 let chickens = [];
-let placedBottles = [500, 1700, 2500];
+let placedBottles = [500, 900, 1400, 1700, 2200, 2500];
 
 // Game config
 
@@ -70,6 +71,7 @@ function checkForCollision() {
                 if (character_y > 110) {
                     placedBottles.splice(i, 1);
                     AUDIO_BOTTLE.play();
+                    tabasco_juice++;
                 }
             }
         }
@@ -197,9 +199,21 @@ function draw() {
     updateCharacter();
     drawChicken();
     drawBottles();
+    drawBottleThrow();
     drawUI();
     requestAnimationFrame(draw);
 
+}
+
+function drawBottleThrow() {
+    if (bottleThrowTime > 0) {
+        let timePassedSinceThrow = new Date().getTime() - bottleThrowTime;
+        let gravity = Math.pow(9.81, timePassedSinceThrow / 300);
+        let bottle_x = character_x + 100 + (timePassedSinceThrow);
+        let bottle_y = 360 - (timePassedSinceThrow * 0.4 - gravity);
+
+        drawBackgroundObject('./img/bottle/bottle.png', bottle_x, bottle_y, 0.25, 0.25, 1);
+    }
 }
 
 function drawBottles() {
@@ -321,7 +335,13 @@ function drawUI() {
     ctx.font = '30px Bradley Hand ITC';
     ctx.fillText(character_lives, 120, 50);
 
-    drawBackgroundObject('./img/bottle/juice/juice_' + tabasco_juice + '.png', 10, 60, 0.4, 0.4, 1);
+    if (tabasco_juice <= 4) {
+        drawBackgroundObject('./img/bottle/juice/juice_' + (tabasco_juice * 20) + '.png', 10, 60, 0.4, 0.4, 1);
+    }
+    else {
+        drawBackgroundObject('./img/bottle/juice/juice_100.png', 10, 60, 0.4, 0.4, 1);
+    }
+
     ctx.font = '30px Bradley Hand ITC';
     ctx.fillText(tabasco_juice, 120, 110);
 
@@ -361,6 +381,16 @@ function listenForKeys() {
         if (k == 'ArrowLeft') {
             isMovingLeft = true;
             // character_x = character_x - 10;
+        }
+
+        if (k == 'd') {
+            if (tabasco_juice > 0) {
+                let timePassed = new Date().getTime() - bottleThrowTime;
+                if (timePassed > 1000) {
+                    tabasco_juice--;
+                    bottleThrowTime = new Date().getTime();
+                }
+            }
         }
 
         let timePassedSinceJump = new Date().getTime() - lastJumpStarted;
