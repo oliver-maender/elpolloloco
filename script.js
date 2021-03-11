@@ -8,8 +8,7 @@ let isMovingRight = false;
 let isMovingLeft = false;
 let lastMove = 'right';
 let lastJumpStarted = 0;
-let currentCharacterImage = './img/pepe/idle/I-1.png';
-let characterGraphics = ['./img/pepe/idle/I-1.png', './img/pepe/walking/W-22.png', './img/pepe/walking/W-25.png'];
+let currentCharacterImage;
 let characterGraphicsIndex = 0;
 let cloudOffset = 0;
 let backgroundPosition = 0;
@@ -23,8 +22,9 @@ let bossDefeatedAt = 0;
 let game_finished = false;
 let character_lost_at = 0;
 
-let chickenType1 = './img/gallinita/gallinita_centro.png';
-let chickenType2 = './img/pollito/pollito_centro.png';
+let imagePaths = ['./img/background/background1/complete.png', './img/background/background2/complete.png', './img/background/background3/complete.png', './img/background/clouds/complete.png', './img/background/sky.png', './img/bottle/juice/juice_0.png', './img/bottle/juice/juice_20.png', './img/bottle/juice/juice_40.png', './img/bottle/juice/juice_60.png', './img/bottle/juice/juice_80.png', './img/bottle/juice/juice_100.png', './img/bottle/bottle.png', './img/caminata/lives/lives_0.png', './img/caminata/lives/lives_20.png', './img/caminata/lives/lives_40.png', './img/caminata/lives/lives_60.png', './img/caminata/lives/lives_80.png', './img/caminata/lives/lives_100.png', './img/caminata/G2.png', './img/caminata/G21.png', './img/caminata/G26.png', './img/gallinita/gallinita_centro.png', './img/gallinita/gallinita_muerte.png', './img/gallinita/gallinita_paso_derecho.png', './img/gallinita/gallinita_paso_izquierdo.png', './img/pepe/idle/I-1.png', './img/pepe/idle/I-4.png', './img/pepe/idle/I-7.png', './img/pepe/idle/I-10.png', './img/pepe/lives/lives_0.png', './img/pepe/lives/lives_20.png', './img/pepe/lives/lives_40.png', './img/pepe/lives/lives_60.png', './img/pepe/lives/lives_80.png', './img/pepe/lives/lives_100.png', './img/pepe/walking/W-21.png', './img/pepe/walking/W-22.png', './img/pepe/walking/W-23.png', './img/pepe/walking/W-24.png', './img/pepe/walking/W-25.png', './img/pepe/walking/W-26.png', './img/pollito/pollito_centro.png', './img/pollito/pollito_muerte.png', './img/pollito/pollito_paso_derecho.png', './img/pollito/pollito_paso_izquierdo.png'];
+let images = [];
+
 let chickens = [];
 let placedBottles = [500, 900, 1400, 1700, 2200, 2500];
 
@@ -37,6 +37,8 @@ let AUDIO_JUMPING = new Audio('./audio/jumping.mp3');
 let AUDIO_BOTTLE = new Audio('./audio/bottle_beta.mp3');
 
 function init() {
+
+    preloadImages();
 
     canvas = document.getElementById('canvas');
     ctx = canvas.getContext("2d");
@@ -51,6 +53,31 @@ function init() {
     checkForCollision();
 
 }
+
+function preloadImages() {
+
+    for (let i = 0; i < imagePaths.length; i++) {
+
+        let image = new Image();
+
+        image.src = imagePaths[i];
+
+        images.push(image);
+        
+    }
+
+}
+
+// function checkBackgroundImageCache(src_path) {
+//     base_image = images.find(function(img) {
+//         return img.src.endsWith(src_path.substring(src_path, src_path.length));
+//     })
+
+//     if(!base_image) {
+//         base_image = new Image();
+//         base_image.src = src_path;
+//     }
+// }
 
 function checkForCollision() {
 
@@ -132,6 +159,9 @@ function calculateChickenPosition() {
 
 function createChickenList() {
 
+    let chickenType1 = images[21];
+    let chickenType2 = images[41];
+
     chickens = [
         createChicken(chickenType1, 700, 410),
         createChicken(chickenType2, 9000, 420),
@@ -147,8 +177,7 @@ function createChickenList() {
 
 function updateCharacter() {
 
-    let base_image = new Image();
-    base_image.src = currentCharacterImage;
+    let base_image = currentCharacterImage;
 
     let timePassedSinceJump = new Date().getTime() - lastJumpStarted;
     if (timePassedSinceJump < JUMP_TIME) {
@@ -188,6 +217,9 @@ function updateCharacter() {
 }
 
 function checkForRunning() {
+
+    let characterGraphics = [images[25], images[36], images[39]];
+    currentCharacterImage = characterGraphics[0];
 
     setInterval(function () {
 
@@ -257,32 +289,37 @@ function drawFinalBoss() {
     for (let i = 80; i >= 0; i = i - 20) {
 
         if (final_boss_lives > i && bossDefeatedAt == 0) {
-            drawBackgroundObject('./img/caminata/lives/lives_' + (i + 20) + '.png', final_boss_position_x - backgroundPosition, final_boss_position_y, 0.4, 0.4, 1);
+            let index = (i * (1/20)) + 13;
+            drawBackgroundObject(images[index], final_boss_position_x - backgroundPosition, final_boss_position_y, 0.4, 0.4, 1);
             break;
         }
 
     }
 
+    if (final_boss_lives <= 0) {
+        drawBackgroundObject(images[12], 10, 0, 0.4, 0.4, 1);
+    }
+
     // if (final_boss_lives > 80 && bossDefeatedAt == 0) {
-    //     drawBackgroundObject('./img/caminata/lives/lives_100.png', final_boss_position_x - backgroundPosition, final_boss_position_y, 0.4, 0.4, 1);
+    //     drawBackgroundObject(images[17], final_boss_position_x - backgroundPosition, final_boss_position_y, 0.4, 0.4, 1);
     // }
     // else if (final_boss_lives > 60 && bossDefeatedAt == 0) {
-    //     drawBackgroundObject('./img/caminata/lives/lives_80.png', final_boss_position_x - backgroundPosition, final_boss_position_y, 0.4, 0.4, 1);
+    //     drawBackgroundObject(images[16], final_boss_position_x - backgroundPosition, final_boss_position_y, 0.4, 0.4, 1);
     // }
     // else if (final_boss_lives > 40 && bossDefeatedAt == 0) {
-    //     drawBackgroundObject('./img/caminata/lives/lives_60.png', final_boss_position_x - backgroundPosition, final_boss_position_y, 0.4, 0.4, 1);
+    //     drawBackgroundObject(images[15], final_boss_position_x - backgroundPosition, final_boss_position_y, 0.4, 0.4, 1);
     // }
     // else if (final_boss_lives > 20 && bossDefeatedAt == 0) {
-    //     drawBackgroundObject('./img/caminata/lives/lives_40.png', final_boss_position_x - backgroundPosition, final_boss_position_y, 0.4, 0.4, 1);
+    //     drawBackgroundObject(images[14], final_boss_position_x - backgroundPosition, final_boss_position_y, 0.4, 0.4, 1);
     // }
     // else if (final_boss_lives > 0 && bossDefeatedAt == 0) {
-    //     drawBackgroundObject('./img/caminata/lives/lives_20.png', final_boss_position_x - backgroundPosition, final_boss_position_y, 0.4, 0.4, 1);
+    //     drawBackgroundObject(images[13], final_boss_position_x - backgroundPosition, final_boss_position_y, 0.4, 0.4, 1);
     // }
 
     if (final_boss_lives > 0) {
-        drawBackgroundObject('./img/caminata/G2.png', final_boss_position_x - backgroundPosition, final_boss_position_y, 0.45, 0.45, 1);
+        drawBackgroundObject(images[18], final_boss_position_x - backgroundPosition, final_boss_position_y, 0.45, 0.45, 1);
     } else {
-        drawBackgroundObject('./img/caminata/G26.png', final_boss_position_x - backgroundPosition, final_boss_position_y, 0.4, 0.4, 1);
+        drawBackgroundObject(images[20], final_boss_position_x - backgroundPosition, final_boss_position_y, 0.4, 0.4, 1);
 
         let timePassed = new Date().getTime() - bossDefeatedAt;
         final_boss_position_x += (timePassed / 100);
@@ -301,7 +338,7 @@ function drawBottleThrow() {
         thrownBottleX = character_x + 100 + (timePassedSinceThrow);
         thrownBottleY = 360 - (timePassedSinceThrow * 0.4 - gravity);
 
-        drawBackgroundObject('./img/bottle/bottle.png', thrownBottleX, thrownBottleY, 0.25, 0.25, 1);
+        drawBackgroundObject(images[11], thrownBottleX, thrownBottleY, 0.25, 0.25, 1);
     }
 }
 
@@ -311,7 +348,7 @@ function drawBottles() {
 
         let bottle_x = placedBottles[i];
 
-        drawBackgroundObject('./img/bottle/bottle.png', bottle_x - backgroundPosition, 420, 0.25, 0.25, 1);
+        drawBackgroundObject(images[11], bottle_x - backgroundPosition, 420, 0.25, 0.25, 1);
 
     }
 
@@ -319,14 +356,14 @@ function drawBottles() {
 
 function drawBackground() {
 
-    drawBackgroundObject('./img/background/sky.png', 0, 0, 0.534, 0.534, 1);
+    drawBackgroundObject(images[4], 0, 0, 0.534, 0.534, 1);
 
     for (let i = 0; i < 5; i = i + 2) {
 
-        drawBackgroundObject('./img/background/clouds/complete.png', (0 - cloudOffset) + canvas.width * i, 0, 0.534, 0.534, 1);
-        drawBackgroundObject('./img/background/background3/complete.png', (0 - backgroundPosition) + canvas.width * i, 0, 0.534, 0.534, 1);
-        drawBackgroundObject('./img/background/background2/complete.png', (0 - backgroundPosition) + canvas.width * i, 0, 0.534, 0.534, 1);
-        drawBackgroundObject('./img/background/background1/complete.png', (0 - backgroundPosition) + canvas.width * i, 0, 0.534, 0.534, 1);
+        drawBackgroundObject(images[3], (0 - cloudOffset) + canvas.width * i, 0, 0.534, 0.534, 1);
+        drawBackgroundObject(images[2], (0 - backgroundPosition) + canvas.width * i, 0, 0.534, 0.534, 1);
+        drawBackgroundObject(images[1], (0 - backgroundPosition) + canvas.width * i, 0, 0.534, 0.534, 1);
+        drawBackgroundObject(images[0], (0 - backgroundPosition) + canvas.width * i, 0, 0.534, 0.534, 1);
 
         if (isMovingLeft) {
             if (backgroundPosition > 0) {
@@ -348,8 +385,7 @@ function drawBackgroundObject(src, offsetX, offsetY, scaleX, scaleY, opacity) {
         ctx.globalAlpha = opacity;
     }
 
-    let base_image = new Image();
-    base_image.src = src;
+    let base_image = src;
     if (base_image.complete) {
         ctx.drawImage(base_image, offsetX, offsetY, base_image.width * scaleX, base_image.height * scaleY);
     };
@@ -386,43 +422,45 @@ function drawUI() {
     for (let i = 80; i >= 0; i = i - 20) {
 
         if (character_lives > i) {
-            drawBackgroundObject('./img/pepe/lives/lives_' + (i + 20) + '.png', 10, 0, 0.4, 0.4, 1);
+            let index = (i * (1/20)) + 30;
+            drawBackgroundObject(images[index], 10, 0, 0.4, 0.4, 1);
             break;
         }
 
     }
 
     if (character_lives <= 0) {
-        drawBackgroundObject('./img/pepe/lives/lives_0.png', 10, 0, 0.4, 0.4, 1);
+        drawBackgroundObject(images[29], 10, 0, 0.4, 0.4, 1);
     }
 
     // if (character_lives > 80) {
-    //     drawBackgroundObject('./img/pepe/lives/lives_100.png', 10, 0, 0.4, 0.4, 1);
+    //     drawBackgroundObject(images[34], 10, 0, 0.4, 0.4, 1);
     // }
     // else if (character_lives > 60) {
-    //     drawBackgroundObject('./img/pepe/lives/lives_80.png', 10, 0, 0.4, 0.4, 1);
+    //     drawBackgroundObject(images[33], 10, 0, 0.4, 0.4, 1);
     // }
     // else if (character_lives > 40) {
-    //     drawBackgroundObject('./img/pepe/lives/lives_60.png', 10, 0, 0.4, 0.4, 1);
+    //     drawBackgroundObject(images[32], 10, 0, 0.4, 0.4, 1);
     // }
     // else if (character_lives > 20) {
-    //     drawBackgroundObject('./img/pepe/lives/lives_40.png', 10, 0, 0.4, 0.4, 1);
+    //     drawBackgroundObject(images[31], 10, 0, 0.4, 0.4, 1);
     // }
     // else if (character_lives > 0) {
-    //     drawBackgroundObject('./img/pepe/lives/lives_20.png', 10, 0, 0.4, 0.4, 1);
+    //     drawBackgroundObject(images[30], 10, 0, 0.4, 0.4, 1);
     // }
     // else {
-    //     drawBackgroundObject('./img/pepe/lives/lives_0.png', 10, 0, 0.4, 0.4, 1);
+    //     drawBackgroundObject(images[29], 10, 0, 0.4, 0.4, 1);
     // }
 
     ctx.font = '30px Bradley Hand ITC';
     ctx.fillText(character_lives, 120, 50);
 
     if (tabasco_juice <= 4) {
-        drawBackgroundObject('./img/bottle/juice/juice_' + (tabasco_juice * 20) + '.png', 10, 60, 0.4, 0.4, 1);
+        let index = tabasco_juice + 5;
+        drawBackgroundObject(images[index], 10, 60, 0.4, 0.4, 1);
     }
     else {
-        drawBackgroundObject('./img/bottle/juice/juice_100.png', 10, 60, 0.4, 0.4, 1);
+        drawBackgroundObject(images[10], 10, 60, 0.4, 0.4, 1);
     }
 
     ctx.font = '30px Bradley Hand ITC';
