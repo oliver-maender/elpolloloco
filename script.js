@@ -3,7 +3,7 @@ let ctx;
 let character_x = 100;
 let character_y = 150;
 let character_lives = 100;
-let tabasco_juice = 0;
+let tabasco_juice = 50;
 let isMovingRight = false;
 let isMovingLeft = false;
 let lastMove = 'right';
@@ -14,6 +14,10 @@ let characterGraphicsIndex = 0;
 let cloudOffset = 0;
 let backgroundPosition = 0;
 let bottleThrowTime = 0;
+let thrownBottleX = 0;
+let thrownBottleY = 0;
+let final_boss_position_x = 500;
+let final_boss_lives = 100;
 
 let chickenType1 = './img/gallinita/gallinita_centro.png';
 let chickenType2 = './img/pollito/pollito_centro.png';
@@ -53,7 +57,7 @@ function checkForCollision() {
             let chicken = chickens[i];
             let chicken_x = chicken.position_x - backgroundPosition;
 
-            if ((chicken_x - 120) < character_x && (chicken_x + 0) > character_x) {
+            if ((chicken_x - 100) < character_x && (chicken_x + 0) > character_x) {
                 if (character_y > 110) {
                     if (character_lives > 0) {
                         character_lives--;
@@ -74,6 +78,17 @@ function checkForCollision() {
                     tabasco_juice++;
                 }
             }
+        }
+
+        // Check final boss
+        if(thrownBottleX > final_boss_position_x - 100 && thrownBottleX < final_boss_position_x + 100) {
+
+            console.log('Treffer');
+
+            final_boss_lives -= 10;
+
+            console.log(final_boss_lives);
+
         }
 
     }, 100);
@@ -120,15 +135,6 @@ function updateCharacter() {
             character_y = character_y + 4;
         }
     }
-
-    // if (isFalling) {
-    //     character_y = character_y + 5;
-
-    //     // - 5 so that he does not fall one step too low
-    //     if (character_y > 300 - 5) {
-    //         isFalling = false;
-    //     }
-    // }
 
     if (base_image.complete) {
         if ((!isMovingRight && !isMovingLeft) && lastMove == 'left') {
@@ -195,8 +201,8 @@ function calculateCloudOffset() {
 function draw() {
 
     drawBackground();
-    // drawGround();
     updateCharacter();
+    drawFinalBoss();
     drawChicken();
     drawBottles();
     drawBottleThrow();
@@ -205,14 +211,42 @@ function draw() {
 
 }
 
+function drawFinalBoss() {
+
+    drawBackgroundObject('./img/caminata/G2.png', final_boss_position_x - backgroundPosition, 0, 0.45, 0.45, 1);
+
+    if (final_boss_lives > 80) {
+        drawBackgroundObject('./img/caminata/lives/lives_100.png', final_boss_position_x - backgroundPosition, 0, 0.4, 0.4, 1);
+    }
+    else if (final_boss_lives > 60) {
+        drawBackgroundObject('./img/caminata/lives/lives_80.png', final_boss_position_x - backgroundPosition, 0, 0.4, 0.4, 1);
+    }
+    else if (final_boss_lives > 40) {
+        drawBackgroundObject('./img/caminata/lives/lives_60.png', final_boss_position_x - backgroundPosition, 0, 0.4, 0.4, 1);
+    }
+    else if (final_boss_lives > 20) {
+        drawBackgroundObject('./img/caminata/lives/lives_40.png', final_boss_position_x - backgroundPosition, 0, 0.4, 0.4, 1);
+    }
+    else if (final_boss_lives > 0) {
+        drawBackgroundObject('./img/caminata/lives/lives_20.png', final_boss_position_x - backgroundPosition, 0, 0.4, 0.4, 1);
+    }
+    else {
+        drawBackgroundObject('./img/caminata/lives/lives_0.png', final_boss_position_x - backgroundPosition, 0, 0.4, 0.4, 1);
+    }
+
+    ctx.font = '30px Bradley Hand ITC';
+    ctx.fillText(final_boss_lives, final_boss_position_x + 100 - backgroundPosition, 50);
+
+}
+
 function drawBottleThrow() {
     if (bottleThrowTime > 0) {
         let timePassedSinceThrow = new Date().getTime() - bottleThrowTime;
         let gravity = Math.pow(9.81, timePassedSinceThrow / 300);
-        let bottle_x = character_x + 100 + (timePassedSinceThrow);
-        let bottle_y = 360 - (timePassedSinceThrow * 0.4 - gravity);
+        thrownBottleX = character_x + 100 + (timePassedSinceThrow);
+        thrownBottleY = 360 - (timePassedSinceThrow * 0.4 - gravity);
 
-        drawBackgroundObject('./img/bottle/bottle.png', bottle_x, bottle_y, 0.25, 0.25, 1);
+        drawBackgroundObject('./img/bottle/bottle.png', thrownBottleX, thrownBottleY, 0.25, 0.25, 1);
     }
 }
 
@@ -250,25 +284,6 @@ function drawBackground() {
         }
 
     }
-
-}
-
-function drawGround() {
-
-    // ctx.fillStyle = "#ddbc00";
-    // ctx.fillRect(0, canvas.height, canvas.width, -100);
-
-    // drawBackgroundObject('./img/background/background3/1.png', (0 - backgroundPosition), 0, 0.54, 0.54, 1);
-    // drawBackgroundObject('./img/background/background2/1.png', (0 - backgroundPosition), 0, 0.54, 0.54, 1);
-    // drawBackgroundObject('./img/background/background1/1.png', (0 - backgroundPosition), 0, 0.54, 0.54, 1);
-
-    // drawBackgroundObject('./img/background/background1/complete.png', (0 - backgroundPosition), 0, 0.534, 0.534, 1);
-    // drawBackgroundObject('./img/background/background1/complete.png', (0 - backgroundPosition) + canvas.width * 4, 0, 0.534, 0.534, 1);
-    // drawBackgroundObject('./img/background/background1/complete.png', (0 - backgroundPosition) + canvas.width * 6, 0, 0.534, 0.534, 1);
-
-    // if(!isMovingLeft && !isMovingRight) {
-    //     drawBackgroundObject('./img/background/background1/1.png', 0 - backgroundPosition, -400, 1, 1, 1);
-    // }
 
 }
 
@@ -347,26 +362,6 @@ function drawUI() {
 
 }
 
-// function drawBackgroundObjectReverse(src, offsetX, offsetY, scaleX, scaleY, opacity) {
-
-//     if(opacity != undefined) {
-//         ctx.globalAlpha = opacity;
-//     }
-
-//     let base_image = new Image();
-//     base_image.src = src;
-//     ctx.save();
-//     ctx.translate(canvas.width, 0);
-//     ctx.scale(-1, 1);
-//     if (base_image.complete) {
-//         ctx.drawImage(base_image, offsetX, offsetY, base_image.width * scaleX, base_image.height * scaleY);
-//     };
-//     ctx.restore();
-
-//     ctx.globalAlpha = 1;
-
-// }
-
 function listenForKeys() {
 
     document.addEventListener('keydown', e => {
@@ -375,12 +370,10 @@ function listenForKeys() {
 
         if (k == 'ArrowRight') {
             isMovingRight = true;
-            // character_x = character_x + 10;
         }
 
         if (k == 'ArrowLeft') {
             isMovingLeft = true;
-            // character_x = character_x - 10;
         }
 
         if (k == 'd') {
@@ -407,13 +400,11 @@ function listenForKeys() {
         const k = e.key;
 
         if (k == 'ArrowRight') {
-            isMovingRight = false;
-            // character_x = character_x + 10;            
+            isMovingRight = false;        
         }
 
         if (k == 'ArrowLeft') {
-            isMovingLeft = false;
-            // character_x = character_x - 10;            
+            isMovingLeft = false;     
         }
 
     });
