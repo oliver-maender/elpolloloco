@@ -13,20 +13,52 @@ let characterGraphicsIndex = 0;
 let cloudOffset = 0;
 let backgroundPosition = 0;
 
+let chickenType1 = './img/gallinita/gallinita_centro.png';
+let chickenType2 = './img/pollito/pollito_centro.png';
+let chickens = [];
+
 // Game config
 
 let JUMP_TIME = 300; // in ms
 let GAME_SPEED = 0.5;
+let AUDIO_RUNNING = new Audio('./audio/running.mp3');
+let AUDIO_JUMPING = new Audio('./audio/jumping.mp3');
 
 function init() {
 
     canvas = document.getElementById('canvas');
     ctx = canvas.getContext("2d");
+    createChickenList();
     checkForRunning();
 
     draw();
     calculateCloudOffset();
     listenForKeys();
+    calculateChickenPosition();
+
+}
+
+function calculateChickenPosition() {
+
+    setInterval(function() {
+
+        for (let i = 0; i < chickens.length; i++) {
+        
+            let chicken = chickens[i];
+            chicken.position_x = chicken.position_x - chicken.speed;
+            
+        }
+
+    }, 50);
+}
+
+function createChickenList() {
+
+    chickens = [
+        createChicken(chickenType1, 400, 410),
+        createChicken(chickenType2, 600, 420),
+        createChicken(chickenType1, 800, 410)
+    ];
 
 }
 
@@ -55,14 +87,14 @@ function updateCharacter() {
     // }
 
     if (base_image.complete) {
-        if((!isMovingRight && !isMovingLeft) && lastMove == 'left') {
+        if ((!isMovingRight && !isMovingLeft) && lastMove == 'left') {
             ctx.save();
             ctx.translate(base_image.width * 0.6, 0);
             ctx.scale(-1, 1);
             ctx.drawImage(base_image, character_x, character_y, base_image.width * 0.3, base_image.height * 0.3);
             ctx.restore();
         }
-        if((!isMovingRight && !isMovingLeft) && lastMove == 'right') {
+        if ((!isMovingRight && !isMovingLeft) && lastMove == 'right') {
             ctx.drawImage(base_image, character_x, character_y, base_image.width * 0.3, base_image.height * 0.3);
         }
         if (isMovingRight) {
@@ -87,6 +119,8 @@ function checkForRunning() {
 
         if (isMovingRight || isMovingLeft) {
 
+            AUDIO_RUNNING.play();
+
             let index = characterGraphicsIndex % characterGraphics.length;
 
             currentCharacterImage = characterGraphics[index];
@@ -94,10 +128,11 @@ function checkForRunning() {
 
         }
 
-        if(!isMovingRight && !isMovingLeft) {
+        if (!isMovingRight && !isMovingLeft) {
             let index = 0;
             currentCharacterImage = characterGraphics[index];
             characterGraphicsIndex = 0;
+            AUDIO_RUNNING.pause();
         }
 
     }, 50);
@@ -118,6 +153,7 @@ function draw() {
     drawBackground();
     // drawGround();
     updateCharacter();
+    drawChicken();
     requestAnimationFrame(draw);
 
 }
@@ -136,7 +172,7 @@ function drawBackground() {
         if (isMovingLeft) {
             backgroundPosition = backgroundPosition - GAME_SPEED;
         }
-    
+
         if (isMovingRight) {
             backgroundPosition = backgroundPosition + GAME_SPEED;
         }
@@ -180,6 +216,29 @@ function drawBackgroundObject(src, offsetX, offsetY, scaleX, scaleY, opacity) {
 
 }
 
+function drawChicken() {
+
+    for (let i = 0; i < chickens.length; i++) {
+
+        let chicken = chickens[i];
+
+        drawBackgroundObject(chicken.img, chicken.position_x, chicken.position_y, chicken.scaleX, chicken.scaleY, 1);
+
+    }
+
+}
+
+function createChicken(type, position_x, position_y) {
+    return {
+        'img': type,
+        'position_x': position_x,
+        'position_y': position_y,
+        'scaleX': 0.4,
+        'scaleY': 0.4,
+        'speed': (Math.random() * 5)
+    }
+}
+
 // function drawBackgroundObjectReverse(src, offsetX, offsetY, scaleX, scaleY, opacity) {
 
 //     if(opacity != undefined) {
@@ -221,6 +280,7 @@ function listenForKeys() {
         let timePassedSinceJump = new Date().getTime() - lastJumpStarted;
 
         if (e.code == 'Space' && timePassedSinceJump > JUMP_TIME * 2) {
+            AUDIO_JUMPING.play();
             lastJumpStarted = new Date().getTime();
         }
 
