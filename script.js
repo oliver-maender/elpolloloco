@@ -3,7 +3,7 @@ let ctx;
 let character_x = 100;
 let character_y = 150;
 let character_lives = 100;
-let tabasco_juice = 50;
+let tabasco_juice = 0;
 let isMovingRight = false;
 let isMovingLeft = false;
 let lastMove = 'right';
@@ -16,8 +16,12 @@ let backgroundPosition = 0;
 let bottleThrowTime = 0;
 let thrownBottleX = 0;
 let thrownBottleY = 0;
-let final_boss_position_x = 500;
+let final_boss_position_x = 4000;
+let final_boss_position_y = 0;
 let final_boss_lives = 100;
+let bossDefeatedAt = 0;
+let game_finished = false;
+let character_lost_at = 0;
 
 let chickenType1 = './img/gallinita/gallinita_centro.png';
 let chickenType2 = './img/pollito/pollito_centro.png';
@@ -60,7 +64,11 @@ function checkForCollision() {
             if ((chicken_x - 100) < character_x && (chicken_x + 0) > character_x) {
                 if (character_y > 110) {
                     if (character_lives > 0) {
-                        character_lives--;
+                        character_lives -= 10;
+                    }
+                    else {
+                        character_lost_at = new Date().getTime();
+                        game_finished = true;
                     }
                 }
             }
@@ -81,17 +89,30 @@ function checkForCollision() {
         }
 
         // Check final boss
-        if(thrownBottleX > final_boss_position_x - 100 && thrownBottleX < final_boss_position_x + 100) {
+        if (thrownBottleX + backgroundPosition > final_boss_position_x - 100 && thrownBottleX + backgroundPosition < final_boss_position_x + 100) {
 
-            console.log('Treffer');
+            if (final_boss_lives > 0) {
+                final_boss_lives -= 10;
+            }
 
-            final_boss_lives -= 10;
-
-            console.log(final_boss_lives);
+            if (final_boss_lives == 0 && bossDefeatedAt == 0) {
+                bossDefeatedAt = new Date().getTime();
+                finishLevel();
+            }
 
         }
 
     }, 100);
+
+}
+
+function finishLevel() {
+
+    setTimeout(function () {
+        AUDIO_BOTTLE.play();
+    }, 1000);
+
+    game_finished = true;
 
 }
 
@@ -113,9 +134,12 @@ function createChickenList() {
 
     chickens = [
         createChicken(chickenType1, 700, 410),
-        createChicken(chickenType2, 1400, 420),
-        createChicken(chickenType1, 1800, 410),
-        createChicken(chickenType1, 2500, 410),
+        createChicken(chickenType2, 9000, 420),
+        createChicken(chickenType1, 1200, 410),
+        createChicken(chickenType1, 1500, 410),
+        createChicken(chickenType2, 2000, 410),
+        createChicken(chickenType2, 2200, 410),
+        createChicken(chickenType1, 2800, 410),
         createChicken(chickenType1, 3000, 410)
     ];
 
@@ -201,41 +225,72 @@ function calculateCloudOffset() {
 function draw() {
 
     drawBackground();
-    updateCharacter();
     drawFinalBoss();
-    drawChicken();
-    drawBottles();
-    drawBottleThrow();
-    drawUI();
+
+    if (game_finished) {
+        drawFinalScreen();
+    } else {
+        updateCharacter();
+        drawChicken();
+        drawBottles();
+        drawBottleThrow();
+        drawUI();
+    }
+
     requestAnimationFrame(draw);
 
 }
 
+function drawFinalScreen() {
+    ctx.font = '80px Bradley Hand ITC';
+    let msg = 'YOU WON!';
+
+    if (character_lost_at > 0) {
+        msg = 'YOU LOST!';
+    }
+
+    ctx.fillText(msg, 320, 200);
+}
+
 function drawFinalBoss() {
 
-    drawBackgroundObject('./img/caminata/G2.png', final_boss_position_x - backgroundPosition, 0, 0.45, 0.45, 1);
+    for (let i = 80; i >= 0; i = i - 20) {
 
-    if (final_boss_lives > 80) {
-        drawBackgroundObject('./img/caminata/lives/lives_100.png', final_boss_position_x - backgroundPosition, 0, 0.4, 0.4, 1);
+        if (final_boss_lives > i && bossDefeatedAt == 0) {
+            drawBackgroundObject('./img/caminata/lives/lives_' + (i + 20) + '.png', final_boss_position_x - backgroundPosition, final_boss_position_y, 0.4, 0.4, 1);
+            break;
+        }
+
     }
-    else if (final_boss_lives > 60) {
-        drawBackgroundObject('./img/caminata/lives/lives_80.png', final_boss_position_x - backgroundPosition, 0, 0.4, 0.4, 1);
-    }
-    else if (final_boss_lives > 40) {
-        drawBackgroundObject('./img/caminata/lives/lives_60.png', final_boss_position_x - backgroundPosition, 0, 0.4, 0.4, 1);
-    }
-    else if (final_boss_lives > 20) {
-        drawBackgroundObject('./img/caminata/lives/lives_40.png', final_boss_position_x - backgroundPosition, 0, 0.4, 0.4, 1);
-    }
-    else if (final_boss_lives > 0) {
-        drawBackgroundObject('./img/caminata/lives/lives_20.png', final_boss_position_x - backgroundPosition, 0, 0.4, 0.4, 1);
-    }
-    else {
-        drawBackgroundObject('./img/caminata/lives/lives_0.png', final_boss_position_x - backgroundPosition, 0, 0.4, 0.4, 1);
+
+    // if (final_boss_lives > 80 && bossDefeatedAt == 0) {
+    //     drawBackgroundObject('./img/caminata/lives/lives_100.png', final_boss_position_x - backgroundPosition, final_boss_position_y, 0.4, 0.4, 1);
+    // }
+    // else if (final_boss_lives > 60 && bossDefeatedAt == 0) {
+    //     drawBackgroundObject('./img/caminata/lives/lives_80.png', final_boss_position_x - backgroundPosition, final_boss_position_y, 0.4, 0.4, 1);
+    // }
+    // else if (final_boss_lives > 40 && bossDefeatedAt == 0) {
+    //     drawBackgroundObject('./img/caminata/lives/lives_60.png', final_boss_position_x - backgroundPosition, final_boss_position_y, 0.4, 0.4, 1);
+    // }
+    // else if (final_boss_lives > 20 && bossDefeatedAt == 0) {
+    //     drawBackgroundObject('./img/caminata/lives/lives_40.png', final_boss_position_x - backgroundPosition, final_boss_position_y, 0.4, 0.4, 1);
+    // }
+    // else if (final_boss_lives > 0 && bossDefeatedAt == 0) {
+    //     drawBackgroundObject('./img/caminata/lives/lives_20.png', final_boss_position_x - backgroundPosition, final_boss_position_y, 0.4, 0.4, 1);
+    // }
+
+    if (final_boss_lives > 0) {
+        drawBackgroundObject('./img/caminata/G2.png', final_boss_position_x - backgroundPosition, final_boss_position_y, 0.45, 0.45, 1);
+    } else {
+        drawBackgroundObject('./img/caminata/G26.png', final_boss_position_x - backgroundPosition, final_boss_position_y, 0.4, 0.4, 1);
+
+        let timePassed = new Date().getTime() - bossDefeatedAt;
+        final_boss_position_x += (timePassed / 100);
+        final_boss_position_y -= (timePassed / 100);
     }
 
     ctx.font = '30px Bradley Hand ITC';
-    ctx.fillText(final_boss_lives, final_boss_position_x + 100 - backgroundPosition, 50);
+    ctx.fillText(final_boss_lives, final_boss_position_x + 100 - backgroundPosition, final_boss_position_y + 50);
 
 }
 
@@ -328,24 +383,37 @@ function createChicken(type, position_x, position_y) {
 
 function drawUI() {
 
-    if (character_lives > 80) {
-        drawBackgroundObject('./img/pepe/lives/lives_100.png', 10, 0, 0.4, 0.4, 1);
+    for (let i = 80; i >= 0; i = i - 20) {
+
+        if (character_lives > i) {
+            drawBackgroundObject('./img/pepe/lives/lives_' + (i + 20) + '.png', 10, 0, 0.4, 0.4, 1);
+            break;
+        }
+
     }
-    else if (character_lives > 60) {
-        drawBackgroundObject('./img/pepe/lives/lives_80.png', 10, 0, 0.4, 0.4, 1);
-    }
-    else if (character_lives > 40) {
-        drawBackgroundObject('./img/pepe/lives/lives_60.png', 10, 0, 0.4, 0.4, 1);
-    }
-    else if (character_lives > 20) {
-        drawBackgroundObject('./img/pepe/lives/lives_40.png', 10, 0, 0.4, 0.4, 1);
-    }
-    else if (character_lives > 0) {
-        drawBackgroundObject('./img/pepe/lives/lives_20.png', 10, 0, 0.4, 0.4, 1);
-    }
-    else {
+
+    if (character_lives <= 0) {
         drawBackgroundObject('./img/pepe/lives/lives_0.png', 10, 0, 0.4, 0.4, 1);
     }
+
+    // if (character_lives > 80) {
+    //     drawBackgroundObject('./img/pepe/lives/lives_100.png', 10, 0, 0.4, 0.4, 1);
+    // }
+    // else if (character_lives > 60) {
+    //     drawBackgroundObject('./img/pepe/lives/lives_80.png', 10, 0, 0.4, 0.4, 1);
+    // }
+    // else if (character_lives > 40) {
+    //     drawBackgroundObject('./img/pepe/lives/lives_60.png', 10, 0, 0.4, 0.4, 1);
+    // }
+    // else if (character_lives > 20) {
+    //     drawBackgroundObject('./img/pepe/lives/lives_40.png', 10, 0, 0.4, 0.4, 1);
+    // }
+    // else if (character_lives > 0) {
+    //     drawBackgroundObject('./img/pepe/lives/lives_20.png', 10, 0, 0.4, 0.4, 1);
+    // }
+    // else {
+    //     drawBackgroundObject('./img/pepe/lives/lives_0.png', 10, 0, 0.4, 0.4, 1);
+    // }
 
     ctx.font = '30px Bradley Hand ITC';
     ctx.fillText(character_lives, 120, 50);
@@ -400,11 +468,11 @@ function listenForKeys() {
         const k = e.key;
 
         if (k == 'ArrowRight') {
-            isMovingRight = false;        
+            isMovingRight = false;
         }
 
         if (k == 'ArrowLeft') {
-            isMovingLeft = false;     
+            isMovingLeft = false;
         }
 
     });
