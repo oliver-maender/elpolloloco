@@ -3,7 +3,7 @@ let ctx;
 let character_x = 100;
 let character_y = 150;
 let character_lives = 100;
-let tabasco_juice = 0;
+let tabasco_juice = 50;
 let isMovingRight = false;
 let isMovingLeft = false;
 let lastMove = 'right';
@@ -13,9 +13,9 @@ let characterGraphicsIndex = 0;
 let cloudOffset = 0;
 let backgroundPosition = 0;
 let bottleThrowTime = 0;
-let thrownBottleX = 0;
-let thrownBottleY = 0;
-let final_boss_position_x = 4000;
+let thrownBottleX;
+let thrownBottleY;
+let final_boss_position_x = 1000;
 let final_boss_position_y = 0;
 let final_boss_lives = 100;
 let bossDefeatedAt = 0;
@@ -63,7 +63,7 @@ function preloadImages() {
         image.src = imagePaths[i];
 
         images.push(image);
-        
+
     }
 
 }
@@ -93,7 +93,8 @@ function checkForCollision() {
                     if (character_lives > 0) {
                         character_lives -= 10;
                     }
-                    else {
+
+                    if (character_lives == 0) {
                         character_lost_at = new Date().getTime();
                         game_finished = true;
                     }
@@ -115,16 +116,34 @@ function checkForCollision() {
             }
         }
 
-        // Check final boss
-        if (thrownBottleX + backgroundPosition > final_boss_position_x - 100 && thrownBottleX + backgroundPosition < final_boss_position_x + 100) {
+        // Check final boss and bottle
+        if (thrownBottleX + backgroundPosition > final_boss_position_x && thrownBottleX + backgroundPosition - 200 < final_boss_position_x) {
 
-            if (final_boss_lives > 0) {
-                final_boss_lives -= 10;
+            if (thrownBottleY + 500 > final_boss_position_y && thrownBottleY - 500 < final_boss_position_y) {
+
+                if (final_boss_lives > 0) {
+                    final_boss_lives -= 10;
+                }
+
+                if (final_boss_lives == 0 && bossDefeatedAt == 0) {
+                    bossDefeatedAt = new Date().getTime();
+                    finishLevel();
+                }
+
             }
 
-            if (final_boss_lives == 0 && bossDefeatedAt == 0) {
-                bossDefeatedAt = new Date().getTime();
-                finishLevel();
+        }
+
+        // Check final boss and character
+        if (character_x + backgroundPosition + 100 > final_boss_position_x && character_x + backgroundPosition - 300 < final_boss_position_x) {
+
+            if (character_lives > 0) {
+                character_lives--;
+            }
+
+            if (character_lives == 0) {
+                character_lost_at = new Date().getTime();
+                game_finished = true;
             }
 
         }
@@ -289,16 +308,16 @@ function drawFinalBoss() {
     for (let i = 80; i >= 0; i = i - 20) {
 
         if (final_boss_lives > i && bossDefeatedAt == 0) {
-            let index = (i * (1/20)) + 13;
+            let index = (i * (1 / 20)) + 13;
             drawBackgroundObject(images[index], final_boss_position_x - backgroundPosition, final_boss_position_y, 0.4, 0.4, 1);
             break;
         }
 
     }
 
-    if (final_boss_lives <= 0) {
-        drawBackgroundObject(images[12], 10, 0, 0.4, 0.4, 1);
-    }
+    // if (final_boss_lives <= 0) {
+    //     drawBackgroundObject(images[12], 10, 0, 0.4, 0.4, 1);
+    // }
 
     // if (final_boss_lives > 80 && bossDefeatedAt == 0) {
     //     drawBackgroundObject(images[17], final_boss_position_x - backgroundPosition, final_boss_position_y, 0.4, 0.4, 1);
@@ -422,7 +441,7 @@ function drawUI() {
     for (let i = 80; i >= 0; i = i - 20) {
 
         if (character_lives > i) {
-            let index = (i * (1/20)) + 30;
+            let index = (i * (1 / 20)) + 30;
             drawBackgroundObject(images[index], 10, 0, 0.4, 0.4, 1);
             break;
         }
