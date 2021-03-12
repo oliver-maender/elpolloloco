@@ -10,6 +10,8 @@ let lastMove = 'right';
 let lastJumpStarted = 0;
 let currentCharacterImage;
 let characterGraphicsIndex = 0;
+let chickenGraphicsIndex = 0;
+let chickenChangeIndex = 0;
 let cloudOffset = 0;
 let backgroundPosition = 0;
 let bottleThrowTime = 0;
@@ -27,6 +29,10 @@ let images = [];
 
 let chickens = [];
 let placedBottles = [500, 900, 1400, 1700, 2200, 2500];
+
+let characterGraphics = [];
+let chickenType1Graphics = [];
+let chickenType2Graphics = [];
 
 // Game config
 
@@ -66,6 +72,10 @@ function preloadImages() {
 
     }
 
+    characterGraphics = [images[25], images[36], images[39]];
+    chickenType1Graphics = [images[21], images[23], images[24]];
+    chickenType2Graphics = [images[41], images[43], images[44]];
+
 }
 
 // function checkBackgroundImageCache(src_path) {
@@ -94,7 +104,7 @@ function checkForCollision() {
                         character_lives -= 10;
                     }
 
-                    if (character_lives == 0) {
+                    if (character_lives <= 0) {
                         character_lost_at = new Date().getTime();
                         game_finished = true;
                     }
@@ -141,7 +151,7 @@ function checkForCollision() {
                 character_lives--;
             }
 
-            if (character_lives == 0) {
+            if (character_lives <= 0) {
                 character_lost_at = new Date().getTime();
                 game_finished = true;
             }
@@ -171,25 +181,36 @@ function calculateChickenPosition() {
             let chicken = chickens[i];
             chicken.position_x = chicken.position_x - chicken.speed;
 
+            if (chickenChangeIndex == 0) {
+                chickenGraphicsIndex++;
+                chickenChangeIndex = 1;
+            }
+            else if (chickenChangeIndex == 1) {
+                chickenChangeIndex = 2;
+            }
+            else if (chickenChangeIndex == 2) {
+                chickenChangeIndex = 0;
+            }
+
+            chickenGraphicsIndex = chickenGraphicsIndex % chickenType1Graphics.length;
+
         }
 
     }, 50);
+
 }
 
 function createChickenList() {
 
-    let chickenType1 = images[21];
-    let chickenType2 = images[41];
-
     chickens = [
-        createChicken(chickenType1, 700, 410),
-        createChicken(chickenType2, 9000, 420),
-        createChicken(chickenType1, 1200, 410),
-        createChicken(chickenType1, 1500, 410),
-        createChicken(chickenType2, 2000, 410),
-        createChicken(chickenType2, 2200, 410),
-        createChicken(chickenType1, 2800, 410),
-        createChicken(chickenType1, 3000, 410)
+        createChicken(1, 700, 410),
+        createChicken(2, 900, 420),
+        createChicken(1, 1200, 410),
+        createChicken(1, 1500, 410),
+        createChicken(2, 2000, 410),
+        createChicken(2, 2200, 410),
+        createChicken(1, 2800, 410),
+        createChicken(1, 3000, 410)
     ];
 
 }
@@ -237,7 +258,6 @@ function updateCharacter() {
 
 function checkForRunning() {
 
-    let characterGraphics = [images[25], images[36], images[39]];
     currentCharacterImage = characterGraphics[0];
 
     setInterval(function () {
@@ -314,26 +334,6 @@ function drawFinalBoss() {
         }
 
     }
-
-    // if (final_boss_lives <= 0) {
-    //     drawBackgroundObject(images[12], 10, 0, 0.4, 0.4, 1);
-    // }
-
-    // if (final_boss_lives > 80 && bossDefeatedAt == 0) {
-    //     drawBackgroundObject(images[17], final_boss_position_x - backgroundPosition, final_boss_position_y, 0.4, 0.4, 1);
-    // }
-    // else if (final_boss_lives > 60 && bossDefeatedAt == 0) {
-    //     drawBackgroundObject(images[16], final_boss_position_x - backgroundPosition, final_boss_position_y, 0.4, 0.4, 1);
-    // }
-    // else if (final_boss_lives > 40 && bossDefeatedAt == 0) {
-    //     drawBackgroundObject(images[15], final_boss_position_x - backgroundPosition, final_boss_position_y, 0.4, 0.4, 1);
-    // }
-    // else if (final_boss_lives > 20 && bossDefeatedAt == 0) {
-    //     drawBackgroundObject(images[14], final_boss_position_x - backgroundPosition, final_boss_position_y, 0.4, 0.4, 1);
-    // }
-    // else if (final_boss_lives > 0 && bossDefeatedAt == 0) {
-    //     drawBackgroundObject(images[13], final_boss_position_x - backgroundPosition, final_boss_position_y, 0.4, 0.4, 1);
-    // }
 
     if (final_boss_lives > 0) {
         drawBackgroundObject(images[18], final_boss_position_x - backgroundPosition, final_boss_position_y, 0.45, 0.45, 1);
@@ -419,7 +419,13 @@ function drawChicken() {
 
         let chicken = chickens[i];
 
-        drawBackgroundObject(chicken.img, chicken.position_x - backgroundPosition, chicken.position_y, chicken.scaleX, chicken.scaleY, 1);
+        if (chicken.type == 1) {
+            drawBackgroundObject(chickenType1Graphics[chickenGraphicsIndex], chicken.position_x - backgroundPosition, chicken.position_y, chicken.scaleX, chicken.scaleY, 1);
+        }
+
+        if (chicken.type == 2) {
+            drawBackgroundObject(chickenType2Graphics[chickenGraphicsIndex], chicken.position_x - backgroundPosition, chicken.position_y, chicken.scaleX, chicken.scaleY, 1);
+        }
 
     }
 
@@ -427,12 +433,12 @@ function drawChicken() {
 
 function createChicken(type, position_x, position_y) {
     return {
-        'img': type,
+        'type': type,
         'position_x': position_x,
         'position_y': position_y,
         'scaleX': 0.4,
         'scaleY': 0.4,
-        'speed': (Math.random() * 5)
+        'speed': (Math.random() * 5) + 1
     }
 }
 
@@ -451,25 +457,6 @@ function drawUI() {
     if (character_lives <= 0) {
         drawBackgroundObject(images[29], 10, 0, 0.4, 0.4, 1);
     }
-
-    // if (character_lives > 80) {
-    //     drawBackgroundObject(images[34], 10, 0, 0.4, 0.4, 1);
-    // }
-    // else if (character_lives > 60) {
-    //     drawBackgroundObject(images[33], 10, 0, 0.4, 0.4, 1);
-    // }
-    // else if (character_lives > 40) {
-    //     drawBackgroundObject(images[32], 10, 0, 0.4, 0.4, 1);
-    // }
-    // else if (character_lives > 20) {
-    //     drawBackgroundObject(images[31], 10, 0, 0.4, 0.4, 1);
-    // }
-    // else if (character_lives > 0) {
-    //     drawBackgroundObject(images[30], 10, 0, 0.4, 0.4, 1);
-    // }
-    // else {
-    //     drawBackgroundObject(images[29], 10, 0, 0.4, 0.4, 1);
-    // }
 
     ctx.font = '30px Bradley Hand ITC';
     ctx.fillText(character_lives, 120, 50);
