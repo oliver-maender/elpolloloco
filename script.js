@@ -9,9 +9,11 @@ let isMovingLeft = false;
 let lastMove = 'right';
 let lastJumpStarted = 0;
 let currentCharacterImage;
-let characterGraphicsIndex = 0;
+let characterIdleGraphicsIndex = 0;
+let characterWalkingGraphicsIndex = 0;
 let chickenGraphicsIndex = 0;
-let chickenChangeIndex = 0;
+let animationChangeIndex = 0;
+let finalBossGraphicsIndex = 0;
 let cloudOffset = 0;
 let backgroundPosition = 0;
 let bottleThrowTime = 0;
@@ -19,20 +21,26 @@ let thrownBottleX;
 let thrownBottleY;
 let final_boss_position_x = 1000;
 let final_boss_position_y = 0;
+let final_boss_speed = 2;
 let final_boss_lives = 100;
 let bossDefeatedAt = 0;
 let game_finished = false;
 let character_lost_at = 0;
 
-let imagePaths = ['./img/background/background1/complete.png', './img/background/background2/complete.png', './img/background/background3/complete.png', './img/background/clouds/complete.png', './img/background/sky.png', './img/bottle/juice/juice_0.png', './img/bottle/juice/juice_20.png', './img/bottle/juice/juice_40.png', './img/bottle/juice/juice_60.png', './img/bottle/juice/juice_80.png', './img/bottle/juice/juice_100.png', './img/bottle/bottle.png', './img/caminata/lives/lives_0.png', './img/caminata/lives/lives_20.png', './img/caminata/lives/lives_40.png', './img/caminata/lives/lives_60.png', './img/caminata/lives/lives_80.png', './img/caminata/lives/lives_100.png', './img/caminata/G2.png', './img/caminata/G21.png', './img/caminata/G26.png', './img/gallinita/gallinita_centro.png', './img/gallinita/gallinita_muerte.png', './img/gallinita/gallinita_paso_derecho.png', './img/gallinita/gallinita_paso_izquierdo.png', './img/pepe/idle/I-1.png', './img/pepe/idle/I-4.png', './img/pepe/idle/I-7.png', './img/pepe/idle/I-10.png', './img/pepe/lives/lives_0.png', './img/pepe/lives/lives_20.png', './img/pepe/lives/lives_40.png', './img/pepe/lives/lives_60.png', './img/pepe/lives/lives_80.png', './img/pepe/lives/lives_100.png', './img/pepe/walking/W-21.png', './img/pepe/walking/W-22.png', './img/pepe/walking/W-23.png', './img/pepe/walking/W-24.png', './img/pepe/walking/W-25.png', './img/pepe/walking/W-26.png', './img/pollito/pollito_centro.png', './img/pollito/pollito_muerte.png', './img/pollito/pollito_paso_derecho.png', './img/pollito/pollito_paso_izquierdo.png'];
+let speedNow = (Math.random() * 10) + 1;
+let intervalTime = (Math.random() * 1300) + 200;
+
+let imagePaths = ['./img/background/background1/complete.png', './img/background/background2/complete.png', './img/background/background3/complete.png', './img/background/clouds/complete.png', './img/background/sky.png', './img/bottle/juice/juice_0.png', './img/bottle/juice/juice_20.png', './img/bottle/juice/juice_40.png', './img/bottle/juice/juice_60.png', './img/bottle/juice/juice_80.png', './img/bottle/juice/juice_100.png', './img/bottle/bottle.png', './img/caminata/lives/lives_0.png', './img/caminata/lives/lives_20.png', './img/caminata/lives/lives_40.png', './img/caminata/lives/lives_60.png', './img/caminata/lives/lives_80.png', './img/caminata/lives/lives_100.png', './img/caminata/G2.png', './img/caminata/G21.png', './img/caminata/G26.png', './img/gallinita/gallinita_centro.png', './img/gallinita/gallinita_muerte.png', './img/gallinita/gallinita_paso_derecho.png', './img/gallinita/gallinita_paso_izquierdo.png', './img/pepe/idle/I-1.png', './img/pepe/idle/I-4.png', './img/pepe/idle/I-7.png', './img/pepe/idle/I-10.png', './img/pepe/lives/lives_0.png', './img/pepe/lives/lives_20.png', './img/pepe/lives/lives_40.png', './img/pepe/lives/lives_60.png', './img/pepe/lives/lives_80.png', './img/pepe/lives/lives_100.png', './img/pepe/walking/W-21.png', './img/pepe/walking/W-22.png', './img/pepe/walking/W-23.png', './img/pepe/walking/W-24.png', './img/pepe/walking/W-25.png', './img/pepe/walking/W-26.png', './img/pollito/pollito_centro.png', './img/pollito/pollito_muerte.png', './img/pollito/pollito_paso_derecho.png', './img/pollito/pollito_paso_izquierdo.png', './img/caminata/G1.png', './img/caminata/G3.png'];
 let images = [];
 
 let chickens = [];
 let placedBottles = [500, 900, 1400, 1700, 2200, 2500];
 
-let characterGraphics = [];
+let characterIdleGraphics = [];
+let characterWalkingGraphics = [];
 let chickenType1Graphics = [];
 let chickenType2Graphics = [];
+let finalBossGraphics = [];
 
 // Game config
 
@@ -50,13 +58,46 @@ function init() {
     ctx = canvas.getContext("2d");
     createChickenList();
     checkForRunning();
+    calculateSpeed();
 
     draw();
+
+    calculateAnimationChange();
 
     calculateCloudOffset();
     listenForKeys();
     calculateChickenPosition();
+    calculateFinalBossPosition();
     checkForCollision();
+
+}
+
+function calculateSpeed() {
+
+    // setTimeout(function() {
+
+    //     speedNow = (Math.random() * 10) + 1;
+    //     intervalTime = (Math.random() * 1300) + 200;
+    //     calculateSpeed();
+
+    // }, intervalTime);
+
+    return (Math.random() * 10) + 1;
+
+}
+
+function calculateAnimationChange() {
+
+    setInterval(function () {
+
+        if (animationChangeIndex < 2) {
+            animationChangeIndex++;
+        }
+        else {
+            animationChangeIndex = 0;
+        }
+
+    }, 50);
 
 }
 
@@ -72,9 +113,11 @@ function preloadImages() {
 
     }
 
-    characterGraphics = [images[25], images[36], images[39]];
+    characterIdleGraphics = [images[25], images[26], images[27], images[28]];
+    characterWalkingGraphics = [images[35], images[36], images[37], images[38], images[39], images[40]];
     chickenType1Graphics = [images[21], images[23], images[24]];
     chickenType2Graphics = [images[41], images[43], images[44]];
+    finalBossGraphics = [images[18], images[45], images[46]];
 
 }
 
@@ -174,27 +217,49 @@ function finishLevel() {
 
 function calculateChickenPosition() {
 
+    let iterations = 0;
+
     setInterval(function () {
 
         for (let i = 0; i < chickens.length; i++) {
 
             let chicken = chickens[i];
+
+            if (iterations == 0) {
+                chicken.speed = calculateSpeed();
+            }
+
             chicken.position_x = chicken.position_x - chicken.speed;
 
-            if (chickenChangeIndex == 0) {
+            if (animationChangeIndex == 0) {
                 chickenGraphicsIndex++;
-                chickenChangeIndex = 1;
-            }
-            else if (chickenChangeIndex == 1) {
-                chickenChangeIndex = 2;
-            }
-            else if (chickenChangeIndex == 2) {
-                chickenChangeIndex = 0;
             }
 
             chickenGraphicsIndex = chickenGraphicsIndex % chickenType1Graphics.length;
 
         }
+
+        if (iterations < 50) {
+            iterations++;
+        } else {
+            iterations = 0;
+        }
+
+    }, 50);
+
+}
+
+function calculateFinalBossPosition() {
+
+    setInterval(function () {
+
+        final_boss_position_x = final_boss_position_x - final_boss_speed;
+
+        if (animationChangeIndex == 0) {
+            finalBossGraphicsIndex++;
+        }
+
+        finalBossGraphicsIndex = finalBossGraphicsIndex % finalBossGraphics.length;
 
     }, 50);
 
@@ -258,7 +323,7 @@ function updateCharacter() {
 
 function checkForRunning() {
 
-    currentCharacterImage = characterGraphics[0];
+    currentCharacterImage = characterIdleGraphics[0];
 
     setInterval(function () {
 
@@ -266,17 +331,20 @@ function checkForRunning() {
 
             AUDIO_RUNNING.play();
 
-            let index = characterGraphicsIndex % characterGraphics.length;
+            let index = characterWalkingGraphicsIndex % characterWalkingGraphics.length;
 
-            currentCharacterImage = characterGraphics[index];
-            characterGraphicsIndex++;
+            if (animationChangeIndex == 0) {
+                characterWalkingGraphicsIndex++;
+            }
+
+            currentCharacterImage = characterWalkingGraphics[index];
 
         }
 
         if (!isMovingRight && !isMovingLeft) {
             let index = 0;
-            currentCharacterImage = characterGraphics[index];
-            characterGraphicsIndex = 0;
+            currentCharacterImage = characterIdleGraphics[index];
+            characterIdleGraphicsIndex = 0;
             AUDIO_RUNNING.pause();
         }
 
@@ -336,7 +404,7 @@ function drawFinalBoss() {
     }
 
     if (final_boss_lives > 0) {
-        drawBackgroundObject(images[18], final_boss_position_x - backgroundPosition, final_boss_position_y, 0.45, 0.45, 1);
+        drawBackgroundObject(finalBossGraphics[finalBossGraphicsIndex], final_boss_position_x - backgroundPosition, final_boss_position_y, 0.45, 0.45, 1);
     } else {
         drawBackgroundObject(images[20], final_boss_position_x - backgroundPosition, final_boss_position_y, 0.4, 0.4, 1);
 
