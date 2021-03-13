@@ -31,6 +31,7 @@ let isJumping = false;
 
 let speedNow = (Math.random() * 10) + 1;
 let intervalTime = (Math.random() * 1300) + 200;
+let intervals = [];
 
 let imagePaths = ['./img/background/background1/complete.png', './img/background/background2/complete.png', './img/background/background3/complete.png', './img/background/clouds/complete.png', './img/background/sky.png', './img/bottle/juice/juice_0.png', './img/bottle/juice/juice_20.png', './img/bottle/juice/juice_40.png', './img/bottle/juice/juice_60.png', './img/bottle/juice/juice_80.png', './img/bottle/juice/juice_100.png', './img/bottle/bottle.png', './img/caminata/lives/lives_0.png', './img/caminata/lives/lives_20.png', './img/caminata/lives/lives_40.png', './img/caminata/lives/lives_60.png', './img/caminata/lives/lives_80.png', './img/caminata/lives/lives_100.png', './img/caminata/G2.png', './img/caminata/G21.png', './img/caminata/G26.png', './img/gallinita/gallinita_centro.png', './img/gallinita/gallinita_muerte.png', './img/gallinita/gallinita_paso_derecho.png', './img/gallinita/gallinita_paso_izquierdo.png', './img/pepe/idle/I-1.png', './img/pepe/idle/I-4.png', './img/pepe/idle/I-7.png', './img/pepe/idle/I-10.png', './img/pepe/lives/lives_0.png', './img/pepe/lives/lives_20.png', './img/pepe/lives/lives_40.png', './img/pepe/lives/lives_60.png', './img/pepe/lives/lives_80.png', './img/pepe/lives/lives_100.png', './img/pepe/walking/W-21.png', './img/pepe/walking/W-22.png', './img/pepe/walking/W-23.png', './img/pepe/walking/W-24.png', './img/pepe/walking/W-25.png', './img/pepe/walking/W-26.png', './img/pollito/pollito_centro.png', './img/pollito/pollito_muerte.png', './img/pollito/pollito_paso_derecho.png', './img/pollito/pollito_paso_izquierdo.png', './img/caminata/G1.png', './img/caminata/G3.png', './img/pepe/hurt/H-41.png', './img/pepe/jumping/J-33.png'];
 let images = [];
@@ -90,7 +91,7 @@ function calculateSpeed() {
 
 function calculateAnimationChange() {
 
-    setInterval(function () {
+    intervals.push(setInterval(function () {
 
         if (animationChangeIndex < 2) {
             animationChangeIndex++;
@@ -99,7 +100,7 @@ function calculateAnimationChange() {
             animationChangeIndex = 0;
         }
 
-    }, 50);
+    }, 50));
 
 }
 
@@ -136,7 +137,7 @@ function preloadImages() {
 
 function checkForCollision() {
 
-    setInterval(function () {
+    intervals.push(setInterval(function () {
 
         // Check Chicken
         for (let i = 0; i < chickens.length; i++) {
@@ -207,7 +208,7 @@ function checkForCollision() {
 
         }
 
-    }, 100);
+    }, 100));
 
 }
 
@@ -225,7 +226,7 @@ function calculateChickenPosition() {
 
     let iterations = 0;
 
-    setInterval(function () {
+    intervals.push(setInterval(function () {
 
         for (let i = 0; i < chickens.length; i++) {
 
@@ -251,13 +252,13 @@ function calculateChickenPosition() {
             iterations = 0;
         }
 
-    }, 50);
+    }, 50));
 
 }
 
 function calculateFinalBossPosition() {
 
-    setInterval(function () {
+    intervals.push(setInterval(function () {
 
         final_boss_position_x = final_boss_position_x - final_boss_speed;
 
@@ -267,7 +268,7 @@ function calculateFinalBossPosition() {
 
         finalBossGraphicsIndex = finalBossGraphicsIndex % finalBossGraphics.length;
 
-    }, 50);
+    }, 50));
 
 }
 
@@ -336,7 +337,7 @@ function checkForRunning() {
 
     currentCharacterImage = characterIdleGraphics[0];
 
-    setInterval(function () {
+    intervals.push(setInterval(function () {
 
         let currentTime = new Date().getTime();
 
@@ -361,7 +362,7 @@ function checkForRunning() {
             AUDIO_RUNNING.pause();
         }
 
-    }, 50);
+    }, 50));
 
 }
 
@@ -381,15 +382,29 @@ function draw() {
 
     if (game_finished) {
         drawFinalScreen();
-    } else {
+        clearIntervals();
+    }
+    
         updateCharacter();
         drawChicken();
         drawBottles();
         drawBottleThrow();
         drawUI();
-    }
 
     requestAnimationFrame(draw);
+
+}
+
+function clearIntervals() {
+    
+    for (let i = 0; i < intervals.length; i++) {
+
+        clearInterval(intervals[i]);
+        
+    }
+
+    isMovingLeft = false;
+    isMovingRight = false;
 
 }
 
@@ -573,15 +588,15 @@ function listenForKeys() {
 
         const k = e.key;
 
-        if (k == 'ArrowRight') {
+        if (k == 'ArrowRight' && game_finished == false) {
             isMovingRight = true;
         }
 
-        if (k == 'ArrowLeft') {
+        if (k == 'ArrowLeft' && game_finished == false) {
             isMovingLeft = true;
         }
 
-        if (k == 'd') {
+        if (k == 'd' && game_finished == false) {
             if (tabasco_juice > 0) {
                 let timePassed = new Date().getTime() - bottleThrowTime;
                 if (timePassed > 1000) {
@@ -593,7 +608,7 @@ function listenForKeys() {
 
         let timePassedSinceJump = new Date().getTime() - lastJumpStarted;
 
-        if (e.code == 'Space' && timePassedSinceJump > JUMP_TIME * 2) {
+        if (e.code == 'Space' && timePassedSinceJump > JUMP_TIME * 2 && game_finished == false) {
             AUDIO_JUMPING.play();
             lastJumpStarted = new Date().getTime();
         }
