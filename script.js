@@ -25,12 +25,14 @@ let final_boss_speed = 2;
 let final_boss_lives = 100;
 let bossDefeatedAt = 0;
 let game_finished = false;
+let character_hurt_at = 0;
 let character_lost_at = 0;
+let isJumping = false;
 
 let speedNow = (Math.random() * 10) + 1;
 let intervalTime = (Math.random() * 1300) + 200;
 
-let imagePaths = ['./img/background/background1/complete.png', './img/background/background2/complete.png', './img/background/background3/complete.png', './img/background/clouds/complete.png', './img/background/sky.png', './img/bottle/juice/juice_0.png', './img/bottle/juice/juice_20.png', './img/bottle/juice/juice_40.png', './img/bottle/juice/juice_60.png', './img/bottle/juice/juice_80.png', './img/bottle/juice/juice_100.png', './img/bottle/bottle.png', './img/caminata/lives/lives_0.png', './img/caminata/lives/lives_20.png', './img/caminata/lives/lives_40.png', './img/caminata/lives/lives_60.png', './img/caminata/lives/lives_80.png', './img/caminata/lives/lives_100.png', './img/caminata/G2.png', './img/caminata/G21.png', './img/caminata/G26.png', './img/gallinita/gallinita_centro.png', './img/gallinita/gallinita_muerte.png', './img/gallinita/gallinita_paso_derecho.png', './img/gallinita/gallinita_paso_izquierdo.png', './img/pepe/idle/I-1.png', './img/pepe/idle/I-4.png', './img/pepe/idle/I-7.png', './img/pepe/idle/I-10.png', './img/pepe/lives/lives_0.png', './img/pepe/lives/lives_20.png', './img/pepe/lives/lives_40.png', './img/pepe/lives/lives_60.png', './img/pepe/lives/lives_80.png', './img/pepe/lives/lives_100.png', './img/pepe/walking/W-21.png', './img/pepe/walking/W-22.png', './img/pepe/walking/W-23.png', './img/pepe/walking/W-24.png', './img/pepe/walking/W-25.png', './img/pepe/walking/W-26.png', './img/pollito/pollito_centro.png', './img/pollito/pollito_muerte.png', './img/pollito/pollito_paso_derecho.png', './img/pollito/pollito_paso_izquierdo.png', './img/caminata/G1.png', './img/caminata/G3.png'];
+let imagePaths = ['./img/background/background1/complete.png', './img/background/background2/complete.png', './img/background/background3/complete.png', './img/background/clouds/complete.png', './img/background/sky.png', './img/bottle/juice/juice_0.png', './img/bottle/juice/juice_20.png', './img/bottle/juice/juice_40.png', './img/bottle/juice/juice_60.png', './img/bottle/juice/juice_80.png', './img/bottle/juice/juice_100.png', './img/bottle/bottle.png', './img/caminata/lives/lives_0.png', './img/caminata/lives/lives_20.png', './img/caminata/lives/lives_40.png', './img/caminata/lives/lives_60.png', './img/caminata/lives/lives_80.png', './img/caminata/lives/lives_100.png', './img/caminata/G2.png', './img/caminata/G21.png', './img/caminata/G26.png', './img/gallinita/gallinita_centro.png', './img/gallinita/gallinita_muerte.png', './img/gallinita/gallinita_paso_derecho.png', './img/gallinita/gallinita_paso_izquierdo.png', './img/pepe/idle/I-1.png', './img/pepe/idle/I-4.png', './img/pepe/idle/I-7.png', './img/pepe/idle/I-10.png', './img/pepe/lives/lives_0.png', './img/pepe/lives/lives_20.png', './img/pepe/lives/lives_40.png', './img/pepe/lives/lives_60.png', './img/pepe/lives/lives_80.png', './img/pepe/lives/lives_100.png', './img/pepe/walking/W-21.png', './img/pepe/walking/W-22.png', './img/pepe/walking/W-23.png', './img/pepe/walking/W-24.png', './img/pepe/walking/W-25.png', './img/pepe/walking/W-26.png', './img/pollito/pollito_centro.png', './img/pollito/pollito_muerte.png', './img/pollito/pollito_paso_derecho.png', './img/pollito/pollito_paso_izquierdo.png', './img/caminata/G1.png', './img/caminata/G3.png', './img/pepe/hurt/H-41.png', './img/pepe/jumping/J-33.png'];
 let images = [];
 
 let chickens = [];
@@ -145,6 +147,8 @@ function checkForCollision() {
                 if (character_y > 110) {
                     if (character_lives > 0) {
                         character_lives -= 10;
+                        currentCharacterImage = images[47];
+                        character_hurt_at = new Date().getTime();
                     }
 
                     if (character_lives <= 0) {
@@ -192,6 +196,8 @@ function checkForCollision() {
 
             if (character_lives > 0) {
                 character_lives--;
+                currentCharacterImage = images[47];
+                character_hurt_at = new Date().getTime();
             }
 
             if (character_lives <= 0) {
@@ -286,12 +292,17 @@ function updateCharacter() {
 
     let timePassedSinceJump = new Date().getTime() - lastJumpStarted;
     if (timePassedSinceJump < JUMP_TIME) {
+        if (isJumping == false) {
+            isJumping = true;
+            drawJump();
+        }
         character_y = character_y - 4;
     } else {
 
         if (character_y < 150) {
             character_y = character_y + 4;
         }
+
     }
 
     if (base_image.complete) {
@@ -327,7 +338,9 @@ function checkForRunning() {
 
     setInterval(function () {
 
-        if (isMovingRight || isMovingLeft) {
+        let currentTime = new Date().getTime();
+
+        if ((isMovingRight || isMovingLeft) && (currentTime - character_hurt_at > 500) && isJumping == false) {
 
             AUDIO_RUNNING.play();
 
@@ -341,7 +354,7 @@ function checkForRunning() {
 
         }
 
-        if (!isMovingRight && !isMovingLeft) {
+        if ((!isMovingRight && !isMovingLeft) && (currentTime - character_hurt_at > 500) && isJumping == false) {
             let index = 0;
             currentCharacterImage = characterIdleGraphics[index];
             characterIdleGraphicsIndex = 0;
@@ -377,6 +390,18 @@ function draw() {
     }
 
     requestAnimationFrame(draw);
+
+}
+
+function drawJump() {
+
+    currentCharacterImage = images[48];
+
+    setTimeout(function() {
+
+        isJumping = false;
+
+    }, 500);
 
 }
 
