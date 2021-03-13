@@ -21,7 +21,7 @@ let thrownBottleX;
 let thrownBottleY;
 let final_boss_position_x = 1000;
 let final_boss_position_y = 0;
-let final_boss_speed = 2;
+let final_boss_speed = (Math.random() * 10) + 1;
 let final_boss_lives = 100;
 let bossDefeatedAt = 0;
 let game_finished = false;
@@ -85,7 +85,7 @@ function calculateSpeed() {
 
     // }, intervalTime);
 
-    return (Math.random() * 10) + 1;
+    return (Math.random() * 20) - 10;
 
 }
 
@@ -258,15 +258,31 @@ function calculateChickenPosition() {
 
 function calculateFinalBossPosition() {
 
+    let iterations = 0;
+
     intervals.push(setInterval(function () {
 
-        final_boss_position_x = final_boss_position_x - final_boss_speed;
+        if (iterations == 0) {
+            final_boss_speed = calculateSpeed();
+        }
+
+        if ((final_boss_position_x > 500 && final_boss_position_x < 2000) || final_boss_speed < 0) {
+
+            final_boss_position_x = final_boss_position_x - final_boss_speed;
+
+        }
 
         if (animationChangeIndex == 0) {
             finalBossGraphicsIndex++;
         }
 
         finalBossGraphicsIndex = finalBossGraphicsIndex % finalBossGraphics.length;
+
+        if (iterations < 50) {
+            iterations++;
+        } else {
+            iterations = 0;
+        }
 
     }, 50));
 
@@ -384,23 +400,23 @@ function draw() {
         drawFinalScreen();
         clearIntervals();
     }
-    
-        updateCharacter();
-        drawChicken();
-        drawBottles();
-        drawBottleThrow();
-        drawUI();
+
+    updateCharacter();
+    drawChicken();
+    drawBottles();
+    drawBottleThrow();
+    drawUI();
 
     requestAnimationFrame(draw);
 
 }
 
 function clearIntervals() {
-    
+
     for (let i = 0; i < intervals.length; i++) {
 
         clearInterval(intervals[i]);
-        
+
     }
 
     isMovingLeft = false;
@@ -412,7 +428,7 @@ function drawJump() {
 
     currentCharacterImage = images[48];
 
-    setTimeout(function() {
+    setTimeout(function () {
 
         isJumping = false;
 
@@ -443,9 +459,19 @@ function drawFinalBoss() {
 
     }
 
-    if (final_boss_lives > 0) {
+    if (final_boss_lives > 0 && final_boss_speed > 0) {
         drawBackgroundObject(finalBossGraphics[finalBossGraphicsIndex], final_boss_position_x - backgroundPosition, final_boss_position_y, 0.45, 0.45, 1);
-    } else {
+    }
+    else if (final_boss_lives > 0 && final_boss_speed < 0) {
+        let base_image = finalBossGraphics[finalBossGraphicsIndex];
+
+        ctx.save();
+        ctx.translate(base_image.width * 0.4, 0);
+        ctx.scale(-1, 1);
+        ctx.drawImage(base_image, -final_boss_position_x + backgroundPosition, final_boss_position_y, base_image.width * 0.45, base_image.height * 0.45);
+        ctx.restore();
+    }
+    else {
         drawBackgroundObject(images[20], final_boss_position_x - backgroundPosition, final_boss_position_y, 0.4, 0.4, 1);
 
         let timePassed = new Date().getTime() - bossDefeatedAt;
@@ -527,12 +553,30 @@ function drawChicken() {
 
         let chicken = chickens[i];
 
-        if (chicken.type == 1) {
+        if (chicken.type == 1 && chicken.speed > 0) {
             drawBackgroundObject(chickenType1Graphics[chickenGraphicsIndex], chicken.position_x - backgroundPosition, chicken.position_y, chicken.scaleX, chicken.scaleY, 1);
         }
+        else if (chicken.type == 1 && chicken.speed < 0) {
+            let base_image = chickenType1Graphics[chickenGraphicsIndex];
+    
+            ctx.save();
+            ctx.translate(base_image.width * 0.4, 0);
+            ctx.scale(-1, 1);
+            ctx.drawImage(base_image, -chicken.position_x + backgroundPosition, chicken.position_y, base_image.width * chicken.scaleX, base_image.height * chicken.scaleY);
+            ctx.restore();
+        }
 
-        if (chicken.type == 2) {
+        if (chicken.type == 2 && chicken.speed > 0) {
             drawBackgroundObject(chickenType2Graphics[chickenGraphicsIndex], chicken.position_x - backgroundPosition, chicken.position_y, chicken.scaleX, chicken.scaleY, 1);
+        }
+        else if (chicken.type == 2 && chicken.speed < 0) {
+            let base_image = chickenType2Graphics[chickenGraphicsIndex];
+    
+            ctx.save();
+            ctx.translate(base_image.width * 0.4, 0);
+            ctx.scale(-1, 1);
+            ctx.drawImage(base_image, -chicken.position_x + backgroundPosition, chicken.position_y, base_image.width * chicken.scaleX, base_image.height * chicken.scaleY);
+            ctx.restore();
         }
 
     }
