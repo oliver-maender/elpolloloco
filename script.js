@@ -11,7 +11,7 @@ let lastJumpStarted = 0;
 let currentCharacterImage;
 let characterIdleGraphicsIndex = 0;
 let characterWalkingGraphicsIndex = 0;
-let chickenGraphicsIndex = 0;
+// let chickenGraphicsIndex = 0;
 let animationChangeIndex = 0;
 let finalBossGraphicsIndex = 0;
 let cloudOffset = 0;
@@ -61,7 +61,7 @@ function init() {
     ctx = canvas.getContext("2d");
     createChickenList();
     checkForRunning();
-    calculateSpeed();
+    // calculateSpeed();
 
     draw();
 
@@ -93,7 +93,7 @@ function calculateAnimationChange() {
 
     intervals.push(setInterval(function () {
 
-        if (animationChangeIndex < 2) {
+        if (animationChangeIndex < 200) {
             animationChangeIndex++;
         }
         else {
@@ -118,9 +118,9 @@ function preloadImages() {
 
     characterIdleGraphics = [images[25], images[26], images[27], images[28]];
     characterWalkingGraphics = [images[35], images[36], images[37], images[38], images[39], images[40]];
-    chickenType1Graphics = [images[21], images[23], images[24]];
-    chickenType2Graphics = [images[41], images[43], images[44]];
-    finalBossGraphics = [images[18], images[45], images[46]];
+    chickenType1Graphics = [images[21], images[23], images[21], images[24]];
+    chickenType2Graphics = [images[41], images[43], images[41], images[44]];
+    finalBossGraphics = [images[18], images[45], images[18], images[46]];
 
 }
 
@@ -238,13 +238,15 @@ function calculateChickenPosition() {
 
             chicken.position_x = chicken.position_x - chicken.speed;
 
-            if (animationChangeIndex == 0) {
-                chickenGraphicsIndex++;
+            if (animationChangeIndex % (11 - Math.round(Math.abs(chicken.speed))) == 0) {
+                chicken.graphInd++;
             }
 
-            chickenGraphicsIndex = chickenGraphicsIndex % chickenType1Graphics.length;
+            chicken.graphInd = chicken.graphInd % chickenType1Graphics.length;
 
         }
+
+        // chickenGraphicsIndex = chickenGraphicsIndex % chickenType1Graphics.length;
 
         if (iterations < 50) {
             iterations++;
@@ -324,11 +326,13 @@ function updateCharacter() {
 
     if (base_image.complete) {
         if ((!isMovingRight && !isMovingLeft) && lastMove == 'left') {
-            ctx.save();
-            ctx.translate(base_image.width * 0.6, 0);
-            ctx.scale(-1, 1);
-            ctx.drawImage(base_image, character_x, character_y, base_image.width * 0.3, base_image.height * 0.3);
-            ctx.restore();
+            // ctx.save();
+            // ctx.translate(base_image.width * 0.6, 0);
+            // ctx.scale(-1, 1);
+            // ctx.drawImage(base_image, character_x, character_y, base_image.width * 0.3, base_image.height * 0.3);
+            // ctx.restore();
+
+            drawBackgroundObjectReverse(base_image, character_x, character_y, 0.3, 0.3, 0.6, 1);
         }
         if ((!isMovingRight && !isMovingLeft) && lastMove == 'right') {
             ctx.drawImage(base_image, character_x, character_y, base_image.width * 0.3, base_image.height * 0.3);
@@ -338,11 +342,13 @@ function updateCharacter() {
             lastMove = 'right';
         }
         if (isMovingLeft) {
-            ctx.save();
-            ctx.translate(base_image.width * 0.6, 0);
-            ctx.scale(-1, 1);
-            ctx.drawImage(base_image, character_x, character_y, base_image.width * 0.3, base_image.height * 0.3);
-            ctx.restore();
+            // ctx.save();
+            // ctx.translate(base_image.width * 0.6, 0);
+            // ctx.scale(-1, 1);
+            // ctx.drawImage(base_image, character_x, character_y, base_image.width * 0.3, base_image.height * 0.3);
+            // ctx.restore();
+
+            drawBackgroundObjectReverse(base_image, character_x, character_y, 0.3, 0.3, 0.6, 1);
             lastMove = 'left';
         }
     };
@@ -465,11 +471,13 @@ function drawFinalBoss() {
     else if (final_boss_lives > 0 && final_boss_speed < 0) {
         let base_image = finalBossGraphics[finalBossGraphicsIndex];
 
-        ctx.save();
-        ctx.translate(base_image.width * 0.4, 0);
-        ctx.scale(-1, 1);
-        ctx.drawImage(base_image, -final_boss_position_x + backgroundPosition, final_boss_position_y, base_image.width * 0.45, base_image.height * 0.45);
-        ctx.restore();
+        // ctx.save();
+        // ctx.translate(base_image.width * 0.4, 0);
+        // ctx.scale(-1, 1);
+        // ctx.drawImage(base_image, -final_boss_position_x + backgroundPosition, final_boss_position_y, base_image.width * 0.45, base_image.height * 0.45);
+        // ctx.restore();
+
+        drawBackgroundObjectReverse(base_image, -final_boss_position_x + backgroundPosition, final_boss_position_y, 0.45, 0.45, 0.4, 1);
     }
     else {
         drawBackgroundObject(images[20], final_boss_position_x - backgroundPosition, final_boss_position_y, 0.4, 0.4, 1);
@@ -547,6 +555,31 @@ function drawBackgroundObject(src, offsetX, offsetY, scaleX, scaleY, opacity) {
 
 }
 
+function drawBackgroundObjectReverse(src, offsetX, offsetY, scaleX, scaleY, translateX, opacity) {
+
+    if (opacity != undefined) {
+        ctx.globalAlpha = opacity;
+    }
+
+    let base_image = src;
+    if (base_image.complete) {
+        // ctx.save();
+        // ctx.translate(base_image.width * translateX, 0);
+        // ctx.scale(-1, 1);
+        // ctx.drawImage(base_image, offsetX, offsetY, base_image.width * scaleX, base_image.height * scaleY);
+        // ctx.restore();
+
+        // ctx.translate(base_image.width * translateX, 0);
+        // ctx.scale(-1, 1);
+        ctx.setTransform(-1, 0, 0, 1, base_image.width * translateX, 0);
+        ctx.drawImage(base_image, offsetX, offsetY, base_image.width * scaleX, base_image.height * scaleY);
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+    };
+
+    ctx.globalAlpha = 1;
+
+}
+
 function drawChicken() {
 
     for (let i = 0; i < chickens.length; i++) {
@@ -554,29 +587,34 @@ function drawChicken() {
         let chicken = chickens[i];
 
         if (chicken.type == 1 && chicken.speed > 0) {
-            drawBackgroundObject(chickenType1Graphics[chickenGraphicsIndex], chicken.position_x - backgroundPosition, chicken.position_y, chicken.scaleX, chicken.scaleY, 1);
+            console.log(chicken.graphInd);
+            drawBackgroundObject(chickenType1Graphics[chicken.graphInd], chicken.position_x - backgroundPosition, chicken.position_y, chicken.scaleX, chicken.scaleY, 1);
         }
         else if (chicken.type == 1 && chicken.speed < 0) {
-            let base_image = chickenType1Graphics[chickenGraphicsIndex];
-    
-            ctx.save();
-            ctx.translate(base_image.width * 0.4, 0);
-            ctx.scale(-1, 1);
-            ctx.drawImage(base_image, -chicken.position_x + backgroundPosition, chicken.position_y, base_image.width * chicken.scaleX, base_image.height * chicken.scaleY);
-            ctx.restore();
+            let base_image = chickenType1Graphics[chicken.graphInd];
+
+            // ctx.save();
+            // ctx.translate(base_image.width * 0.4, 0);
+            // ctx.scale(-1, 1);
+            // ctx.drawImage(base_image, -chicken.position_x + backgroundPosition, chicken.position_y, base_image.width * chicken.scaleX, base_image.height * chicken.scaleY);
+            // ctx.restore();
+
+            drawBackgroundObjectReverse(base_image, -chicken.position_x + backgroundPosition, chicken.position_y, chicken.scaleX, chicken.scaleY, 0.4, 1);
         }
 
         if (chicken.type == 2 && chicken.speed > 0) {
-            drawBackgroundObject(chickenType2Graphics[chickenGraphicsIndex], chicken.position_x - backgroundPosition, chicken.position_y, chicken.scaleX, chicken.scaleY, 1);
+            drawBackgroundObject(chickenType2Graphics[chicken.graphInd], chicken.position_x - backgroundPosition, chicken.position_y, chicken.scaleX, chicken.scaleY, 1);
         }
         else if (chicken.type == 2 && chicken.speed < 0) {
-            let base_image = chickenType2Graphics[chickenGraphicsIndex];
-    
-            ctx.save();
-            ctx.translate(base_image.width * 0.4, 0);
-            ctx.scale(-1, 1);
-            ctx.drawImage(base_image, -chicken.position_x + backgroundPosition, chicken.position_y, base_image.width * chicken.scaleX, base_image.height * chicken.scaleY);
-            ctx.restore();
+            let base_image = chickenType2Graphics[chicken.graphInd];
+
+            // ctx.save();
+            // ctx.translate(base_image.width * 0.4, 0);
+            // ctx.scale(-1, 1);
+            // ctx.drawImage(base_image, -chicken.position_x + backgroundPosition, chicken.position_y, base_image.width * chicken.scaleX, base_image.height * chicken.scaleY);
+            // ctx.restore();
+
+            drawBackgroundObjectReverse(base_image, -chicken.position_x + backgroundPosition, chicken.position_y, chicken.scaleX, chicken.scaleY, 0.4, 1);
         }
 
     }
@@ -590,7 +628,8 @@ function createChicken(type, position_x, position_y) {
         'position_y': position_y,
         'scaleX': 0.4,
         'scaleY': 0.4,
-        'speed': (Math.random() * 5) + 1
+        'speed': (Math.random() * 5) + 1,
+        'graphInd': 0
     }
 }
 
