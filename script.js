@@ -3,7 +3,7 @@ let ctx;
 let character_x = 100;
 let character_y = 150;
 let character_lives = 100;
-let tabasco_juice = 50;
+let tabasco_juice = 0;
 let isMovingRight = false;
 let isMovingLeft = false;
 let lastMove = 'right';
@@ -33,7 +33,7 @@ let speedNow = (Math.random() * 10) + 1;
 let intervalTime = (Math.random() * 1300) + 200;
 let intervals = [];
 
-let imagePaths = ['./img/background/background1/complete.png', './img/background/background2/complete.png', './img/background/background3/complete.png', './img/background/clouds/complete.png', './img/background/sky.png', './img/bottle/juice/juice_0.png', './img/bottle/juice/juice_20.png', './img/bottle/juice/juice_40.png', './img/bottle/juice/juice_60.png', './img/bottle/juice/juice_80.png', './img/bottle/juice/juice_100.png', './img/bottle/bottle.png', './img/caminata/lives/lives_0.png', './img/caminata/lives/lives_20.png', './img/caminata/lives/lives_40.png', './img/caminata/lives/lives_60.png', './img/caminata/lives/lives_80.png', './img/caminata/lives/lives_100.png', './img/caminata/G2.png', './img/caminata/G21.png', './img/caminata/G26.png', './img/gallinita/gallinita_centro.png', './img/gallinita/gallinita_muerte.png', './img/gallinita/gallinita_paso_derecho.png', './img/gallinita/gallinita_paso_izquierdo.png', './img/pepe/idle/I-1.png', './img/pepe/idle/I-4.png', './img/pepe/idle/I-7.png', './img/pepe/idle/I-10.png', './img/pepe/lives/lives_0.png', './img/pepe/lives/lives_20.png', './img/pepe/lives/lives_40.png', './img/pepe/lives/lives_60.png', './img/pepe/lives/lives_80.png', './img/pepe/lives/lives_100.png', './img/pepe/walking/W-21.png', './img/pepe/walking/W-22.png', './img/pepe/walking/W-23.png', './img/pepe/walking/W-24.png', './img/pepe/walking/W-25.png', './img/pepe/walking/W-26.png', './img/pollito/pollito_centro.png', './img/pollito/pollito_muerte.png', './img/pollito/pollito_paso_derecho.png', './img/pollito/pollito_paso_izquierdo.png', './img/caminata/G1.png', './img/caminata/G3.png', './img/pepe/hurt/H-41.png', './img/pepe/jumping/J-33.png'];
+let imagePaths = ['./img/background/background1/complete.png', './img/background/background2/complete.png', './img/background/background3/complete.png', './img/background/clouds/complete.png', './img/background/sky.png', './img/bottle/juice/juice_0.png', './img/bottle/juice/juice_20.png', './img/bottle/juice/juice_40.png', './img/bottle/juice/juice_60.png', './img/bottle/juice/juice_80.png', './img/bottle/juice/juice_100.png', './img/bottle/bottle.png', './img/caminata/lives/lives_0.png', './img/caminata/lives/lives_20.png', './img/caminata/lives/lives_40.png', './img/caminata/lives/lives_60.png', './img/caminata/lives/lives_80.png', './img/caminata/lives/lives_100.png', './img/caminata/G2.png', './img/caminata/G21.png', './img/caminata/G26.png', './img/gallinita/gallinita_centro.png', './img/gallinita/gallinita_muerte.png', './img/gallinita/gallinita_paso_derecho.png', './img/gallinita/gallinita_paso_izquierdo.png', './img/pepe/idle/I-1.png', './img/pepe/idle/I-4.png', './img/pepe/idle/I-7.png', './img/pepe/idle/I-10.png', './img/pepe/lives/lives_0.png', './img/pepe/lives/lives_20.png', './img/pepe/lives/lives_40.png', './img/pepe/lives/lives_60.png', './img/pepe/lives/lives_80.png', './img/pepe/lives/lives_100.png', './img/pepe/walking/W-21.png', './img/pepe/walking/W-22.png', './img/pepe/walking/W-23.png', './img/pepe/walking/W-24.png', './img/pepe/walking/W-25.png', './img/pepe/walking/W-26.png', './img/pollito/pollito_centro.png', './img/pollito/pollito_muerte.png', './img/pollito/pollito_paso_derecho.png', './img/pollito/pollito_paso_izquierdo.png', './img/caminata/G1.png', './img/caminata/G3.png', './img/pepe/hurt/H-41.png', './img/pepe/jumping/J-33.png', './img/gameover/game_over.png'];
 let images = [];
 
 let chickens = [];
@@ -274,7 +274,7 @@ function calculateFinalBossPosition() {
 
         }
 
-        if (animationChangeIndex == 0) {
+        if (animationChangeIndex % (11 - Math.round(Math.abs(final_boss_speed))) == 0) {
             finalBossGraphicsIndex++;
         }
 
@@ -401,17 +401,16 @@ function draw() {
 
     drawBackground();
     drawFinalBoss();
-
-    if (game_finished) {
-        drawFinalScreen();
-        clearIntervals();
-    }
-
     updateCharacter();
     drawChicken();
     drawBottles();
     drawBottleThrow();
     drawUI();
+
+    if (game_finished) {
+        drawFinalScreen();
+        clearIntervals();
+    }
 
     requestAnimationFrame(draw);
 
@@ -427,6 +426,7 @@ function clearIntervals() {
 
     isMovingLeft = false;
     isMovingRight = false;
+    AUDIO_RUNNING.pause();
 
 }
 
@@ -443,14 +443,16 @@ function drawJump() {
 }
 
 function drawFinalScreen() {
-    ctx.font = '80px Bradley Hand ITC';
-    let msg = 'YOU WON!';
 
     if (character_lost_at > 0) {
-        msg = 'YOU LOST!';
+        drawBackgroundObject(images[49], 0, 0, 0.534, 0.534, 1);
     }
 
-    ctx.fillText(msg, 320, 200);
+    if(character_lost_at == 0) {
+        ctx.font = '80px Bradley Hand ITC';
+        ctx.fillText('YOU WON!', 320, 200);
+    }
+
 }
 
 function drawFinalBoss() {
@@ -587,7 +589,6 @@ function drawChicken() {
         let chicken = chickens[i];
 
         if (chicken.type == 1 && chicken.speed > 0) {
-            console.log(chicken.graphInd);
             drawBackgroundObject(chickenType1Graphics[chicken.graphInd], chicken.position_x - backgroundPosition, chicken.position_y, chicken.scaleX, chicken.scaleY, 1);
         }
         else if (chicken.type == 1 && chicken.speed < 0) {
