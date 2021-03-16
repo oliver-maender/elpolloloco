@@ -1,9 +1,9 @@
 let canvas;
 let ctx;
-let character_x = 100;
-let character_y = 150;
-let character_lives = 100;
-let tabasco_juice = 0;
+let characterX = 100;
+let characterY = 150;
+let characterLives = 100;
+let tabascoJuice = 0;
 let isMovingRight = false;
 let isMovingLeft = false;
 let lastMove = 'right';
@@ -19,14 +19,14 @@ let backgroundPosition = 0;
 let bottleThrowTime = 0;
 let thrownBottleX;
 let thrownBottleY;
-let final_boss_position_x = 2000;
-let final_boss_position_y = 0;
-let final_boss_speed = (Math.random() * 10) + 1;
-let final_boss_lives = 100;
+let finalBossPositionX = 2000;
+let finalBossPositionY = 0;
+let finalBossSpeed = (Math.random() * 10) + 1;
+let finalBossLives = 100;
 let bossDefeatedAt = 0;
-let game_finished = false;
-let character_hurt_at = 0;
-let character_lost_at = 0;
+let gameFinished = false;
+let characterHurtAt = 0;
+let characterLostAt = 0;
 let isJumping = false;
 
 let speedNow = (Math.random() * 10) + 1;
@@ -45,8 +45,6 @@ let chickenType1Graphics = [];
 let chickenType2Graphics = [];
 let finalBossGraphics = [];
 
-// Game config
-
 let JUMP_TIME = 300; // in ms
 let GAME_SPEED = 0.5;
 let AUDIO_RUNNING = new Audio('./audio/running.mp3');
@@ -55,29 +53,14 @@ let AUDIO_BOTTLE = new Audio('./audio/bottle_beta.mp3');
 
 function init() {
 
-    // preloadImages();
-
-    // canvas = document.getElementById('canvas');
-    // ctx = canvas.getContext("2d");
-    // createChickenList();
-    // checkForRunning();
-    // // calculateSpeed();
-
-    // draw();
-
-    // calculateAnimationChange();
-
-    // calculateCloudOffset();
-    // listenForKeys();
-    // calculateChickenPosition();
-    // calculateFinalBossPosition();
-    // checkForCollision();
-
     preloadImages();
     drawStartScreen();
 
 }
 
+/**
+ * Creates and draws on the canvas before the game gets loaded
+ */
 function drawStartScreen() {
 
     setTimeout(function() {
@@ -93,52 +76,24 @@ function drawStartScreen() {
         document.getElementById('info-box').style.display = 'none';
         
         createChickenList();
-        checkForRunning();
-    
-        draw();
-    
-        calculateAnimationChange();
-    
         calculateCloudOffset();
-        listenForKeys();
         calculateChickenPosition();
         calculateFinalBossPosition();
+        calculateAnimationChange();
+        listenForKeys();
+        checkForRunning();
         checkForCollision();
+    
+        draw();
 
     }, { once: true });
     
 }
 
-function calculateSpeed() {
-
-    // setTimeout(function() {
-
-    //     speedNow = (Math.random() * 10) + 1;
-    //     intervalTime = (Math.random() * 1300) + 200;
-    //     calculateSpeed();
-
-    // }, intervalTime);
-
-    return (Math.random() * 20) - 10;
-
-}
-
-function calculateAnimationChange() {
-
-    intervals.push(setInterval(function () {
-
-        if (animationChangeIndex < 200) {
-            animationChangeIndex++;
-        }
-        else {
-            animationChangeIndex = 0;
-        }
-
-    }, 50));
-
-}
-
-function preloadImages() {
+/**
+ * Creates all images from the array with paths and save the created images in an array
+ */
+ function preloadImages() {
 
     for (let i = 0; i < imagePaths.length; i++) {
 
@@ -158,6 +113,43 @@ function preloadImages() {
 
 }
 
+/**
+ * Calculates a random number between -10 and 10 and returns this as speed for the chickens and final boss
+ * 
+ * @returns Random number between -10 and 10
+ */
+function calculateSpeed() {
+
+    // setTimeout(function() {
+
+    //     speedNow = (Math.random() * 10) + 1;
+    //     intervalTime = (Math.random() * 1300) + 200;
+    //     calculateSpeed();
+
+    // }, intervalTime);
+
+    return (Math.random() * 20) - 10;
+
+}
+
+/**
+ * Is used to slow down the change speed of graphics
+ */
+function calculateAnimationChange() {
+
+    intervals.push(setInterval(function () {
+
+        if (animationChangeIndex < 200) {
+            animationChangeIndex++;
+        }
+        else {
+            animationChangeIndex = 0;
+        }
+
+    }, 50));
+
+}
+
 // function checkBackgroundImageCache(src_path) {
 //     base_image = images.find(function(img) {
 //         return img.src.endsWith(src_path.substring(src_path, src_path.length));
@@ -169,6 +161,9 @@ function preloadImages() {
 //     }
 // }
 
+/**
+ * Checks for the positions of different entities of the game and handles them
+ */
 function checkForCollision() {
 
     intervals.push(setInterval(function () {
@@ -178,17 +173,17 @@ function checkForCollision() {
             let chicken = chickens[i];
             let chicken_x = chicken.position_x - backgroundPosition;
 
-            if ((chicken_x - 100) < character_x && (chicken_x + 0) > character_x) {
-                if (character_y > 110) {
-                    if (character_lives > 0) {
-                        character_lives -= 10;
+            if ((chicken_x - 100) < characterX && (chicken_x + 0) > characterX) {
+                if (characterY > 110) {
+                    if (characterLives > 0) {
+                        characterLives -= 10;
                         currentCharacterImage = images[47];
-                        character_hurt_at = new Date().getTime();
+                        characterHurtAt = new Date().getTime();
                     }
 
-                    if (character_lives <= 0) {
-                        character_lost_at = new Date().getTime();
-                        game_finished = true;
+                    if (characterLives <= 0) {
+                        characterLostAt = new Date().getTime();
+                        gameFinished = true;
                     }
                 }
             }
@@ -199,25 +194,25 @@ function checkForCollision() {
             let bottle = placedBottles[i];
             let bottle_x = bottle - backgroundPosition;
 
-            if ((bottle_x - 50) < character_x && (bottle_x + 0) > character_x) {
-                if (character_y > 110) {
+            if ((bottle_x - 50) < characterX && (bottle_x + 0) > characterX) {
+                if (characterY > 110) {
                     placedBottles.splice(i, 1);
                     AUDIO_BOTTLE.play();
-                    tabasco_juice++;
+                    tabascoJuice++;
                 }
             }
         }
 
         // Check final boss and bottle
-        if (thrownBottleX + backgroundPosition > final_boss_position_x && thrownBottleX + backgroundPosition - 200 < final_boss_position_x) {
+        if (thrownBottleX + backgroundPosition > finalBossPositionX && thrownBottleX + backgroundPosition - 200 < finalBossPositionX) {
 
-            if (thrownBottleY + 500 > final_boss_position_y && thrownBottleY - 500 < final_boss_position_y) {
+            if (thrownBottleY + 500 > finalBossPositionY && thrownBottleY - 500 < finalBossPositionY) {
 
-                if (final_boss_lives > 0) {
-                    final_boss_lives -= 10;
+                if (finalBossLives > 0) {
+                    finalBossLives -= 10;
                 }
 
-                if (final_boss_lives == 0 && bossDefeatedAt == 0) {
+                if (finalBossLives == 0 && bossDefeatedAt == 0) {
                     bossDefeatedAt = new Date().getTime();
                     finishLevel();
                 }
@@ -227,17 +222,17 @@ function checkForCollision() {
         }
 
         // Check final boss and character
-        if (character_x + backgroundPosition + 100 > final_boss_position_x && character_x + backgroundPosition - 300 < final_boss_position_x) {
+        if (characterX + backgroundPosition + 100 > finalBossPositionX && characterX + backgroundPosition - 300 < finalBossPositionX) {
 
-            if (character_lives > 0) {
-                character_lives--;
+            if (characterLives > 0) {
+                characterLives--;
                 currentCharacterImage = images[47];
-                character_hurt_at = new Date().getTime();
+                characterHurtAt = new Date().getTime();
             }
 
-            if (character_lives <= 0) {
-                character_lost_at = new Date().getTime();
-                game_finished = true;
+            if (characterLives <= 0) {
+                characterLostAt = new Date().getTime();
+                gameFinished = true;
             }
 
         }
@@ -246,16 +241,22 @@ function checkForCollision() {
 
 }
 
+/**
+ * Will be called when the character or the final boss has 0 lives
+ */
 function finishLevel() {
 
     setTimeout(function () {
         AUDIO_BOTTLE.play();
     }, 1000);
 
-    game_finished = true;
+    gameFinished = true;
 
 }
 
+/**
+ * Calculates the positions and animations for all chickens except final boss
+ */
 function calculateChickenPosition() {
 
     let iterations = 0;
@@ -280,8 +281,6 @@ function calculateChickenPosition() {
 
         }
 
-        // chickenGraphicsIndex = chickenGraphicsIndex % chickenType1Graphics.length;
-
         if (iterations < 50) {
             iterations++;
         } else {
@@ -292,6 +291,9 @@ function calculateChickenPosition() {
 
 }
 
+/**
+ * Calculates the position and animation for the final boss
+ */
 function calculateFinalBossPosition() {
 
     let iterations = 0;
@@ -299,14 +301,14 @@ function calculateFinalBossPosition() {
     intervals.push(setInterval(function () {
 
         if (iterations == 0) {
-            final_boss_speed = calculateSpeed();
+            finalBossSpeed = calculateSpeed();
         }
 
-        if (!((final_boss_position_x < 1500 && final_boss_speed > 0) || (final_boss_position_x > 2500 && final_boss_speed < 0))) {
-            final_boss_position_x = final_boss_position_x - final_boss_speed;
+        if (!((finalBossPositionX < 1500 && finalBossSpeed > 0) || (finalBossPositionX > 2500 && finalBossSpeed < 0))) {
+            finalBossPositionX = finalBossPositionX - finalBossSpeed;
         }
 
-        if (animationChangeIndex % (11 - Math.round(Math.abs(final_boss_speed))) == 0) {
+        if (animationChangeIndex % (11 - Math.round(Math.abs(finalBossSpeed))) == 0) {
             finalBossGraphicsIndex++;
         }
 
@@ -322,6 +324,9 @@ function calculateFinalBossPosition() {
 
 }
 
+/**
+ * Creates an array which calls the function to create chickens and transmits parameters
+ */
 function createChickenList() {
 
     chickens = [
@@ -337,6 +342,9 @@ function createChickenList() {
 
 }
 
+/**
+ * Calculates the position and animation for the character
+ */
 function updateCharacter() {
 
     let base_image = currentCharacterImage;
@@ -347,11 +355,11 @@ function updateCharacter() {
             isJumping = true;
             drawJump();
         }
-        character_y = character_y - 4;
+        characterY = characterY - 4;
     } else {
 
-        if (character_y < 150) {
-            character_y = character_y + 4;
+        if (characterY < 150) {
+            characterY = characterY + 4;
         }
 
     }
@@ -361,32 +369,35 @@ function updateCharacter() {
             // ctx.save();
             // ctx.translate(base_image.width * 0.6, 0);
             // ctx.scale(-1, 1);
-            // ctx.drawImage(base_image, character_x, character_y, base_image.width * 0.3, base_image.height * 0.3);
+            // ctx.drawImage(base_image, characterX, characterY, base_image.width * 0.3, base_image.height * 0.3);
             // ctx.restore();
 
-            drawBackgroundObjectReverse(base_image, character_x, character_y, 0.3, 0.3, 0.6, 1);
+            drawBackgroundObjectReverse(base_image, characterX, characterY, 0.3, 0.3, 0.6, 1);
         }
         if ((!isMovingRight && !isMovingLeft) && lastMove == 'right') {
-            ctx.drawImage(base_image, character_x, character_y, base_image.width * 0.3, base_image.height * 0.3);
+            ctx.drawImage(base_image, characterX, characterY, base_image.width * 0.3, base_image.height * 0.3);
         }
         if (isMovingRight) {
-            ctx.drawImage(base_image, character_x, character_y, base_image.width * 0.3, base_image.height * 0.3);
+            ctx.drawImage(base_image, characterX, characterY, base_image.width * 0.3, base_image.height * 0.3);
             lastMove = 'right';
         }
         if (isMovingLeft) {
             // ctx.save();
             // ctx.translate(base_image.width * 0.6, 0);
             // ctx.scale(-1, 1);
-            // ctx.drawImage(base_image, character_x, character_y, base_image.width * 0.3, base_image.height * 0.3);
+            // ctx.drawImage(base_image, characterX, characterY, base_image.width * 0.3, base_image.height * 0.3);
             // ctx.restore();
 
-            drawBackgroundObjectReverse(base_image, character_x, character_y, 0.3, 0.3, 0.6, 1);
+            drawBackgroundObjectReverse(base_image, characterX, characterY, 0.3, 0.3, 0.6, 1);
             lastMove = 'left';
         }
     };
 
 }
 
+/**
+ * Checks and handles whether and if yes in which direction the character runs
+ */
 function checkForRunning() {
 
     currentCharacterImage = characterIdleGraphics[0];
@@ -395,13 +406,13 @@ function checkForRunning() {
 
         let currentTime = new Date().getTime();
 
-        if ((isMovingRight || isMovingLeft) && (currentTime - character_hurt_at > 500) && isJumping == false) {
+        if ((isMovingRight || isMovingLeft) && (currentTime - characterHurtAt > 500) && isJumping == false) {
 
             AUDIO_RUNNING.play();
 
             let index = characterWalkingGraphicsIndex % characterWalkingGraphics.length;
 
-            if (animationChangeIndex == 0) {
+            if (animationChangeIndex % 3 == 0) {
                 characterWalkingGraphicsIndex++;
             }
 
@@ -409,7 +420,7 @@ function checkForRunning() {
 
         }
 
-        if ((!isMovingRight && !isMovingLeft) && (currentTime - character_hurt_at > 500) && isJumping == false) {
+        if ((!isMovingRight && !isMovingLeft) && (currentTime - characterHurtAt > 500) && isJumping == false) {
             let index = 0;
             currentCharacterImage = characterIdleGraphics[index];
             characterIdleGraphicsIndex = 0;
@@ -420,6 +431,9 @@ function checkForRunning() {
 
 }
 
+/**
+ * Calculates the position for the clouds
+ */
 function calculateCloudOffset() {
 
     setInterval(function () {
@@ -429,6 +443,9 @@ function calculateCloudOffset() {
     }, 50);
 }
 
+/**
+ * Calls every function that draws something on the canvas
+ */
 function draw() {
 
     drawBackground();
@@ -439,7 +456,7 @@ function draw() {
     drawBottleThrow();
     drawUI();
 
-    if (game_finished) {
+    if (gameFinished) {
         drawFinalScreen();
         clearIntervals();
     }
@@ -448,6 +465,9 @@ function draw() {
 
 }
 
+/**
+ * Stops the game calculations by stopping all intervals and changing specific variables
+ */
 function clearIntervals() {
 
     for (let i = 0; i < intervals.length; i++) {
@@ -462,6 +482,9 @@ function clearIntervals() {
 
 }
 
+/**
+ * Handles the jump drawing
+ */
 function drawJump() {
 
     currentCharacterImage = images[48];
@@ -474,69 +497,75 @@ function drawJump() {
 
 }
 
+/**
+ * Handles the final screen drawing when the game is finished
+ */
 function drawFinalScreen() {
 
-    if (character_lost_at > 0) {
+    if (characterLostAt > 0) {
         drawBackgroundObject(images[49], 0, 0, 0.534, 0.534, 1);
     }
 
-    if(character_lost_at == 0) {
+    if(characterLostAt == 0) {
         ctx.font = '80px Bradley Hand ITC';
         ctx.fillText('YOU WON!', 320, 200);
     }
 
 }
 
+/**
+ * Handles the final boss drawing
+ */
 function drawFinalBoss() {
 
     for (let i = 80; i >= 0; i = i - 20) {
 
-        if (final_boss_lives > i && bossDefeatedAt == 0) {
+        if (finalBossLives > i && bossDefeatedAt == 0) {
             let index = (i * (1 / 20)) + 13;
-            drawBackgroundObject(images[index], final_boss_position_x - backgroundPosition, final_boss_position_y, 0.4, 0.4, 1);
+            drawBackgroundObject(images[index], finalBossPositionX - backgroundPosition, finalBossPositionY, 0.4, 0.4, 1);
             break;
         }
 
     }
 
-    if (final_boss_lives > 0 && final_boss_speed > 0) {
-        drawBackgroundObject(finalBossGraphics[finalBossGraphicsIndex], final_boss_position_x - backgroundPosition, final_boss_position_y, 0.45, 0.45, 1);
+    if (finalBossLives > 0 && finalBossSpeed > 0) {
+        drawBackgroundObject(finalBossGraphics[finalBossGraphicsIndex], finalBossPositionX - backgroundPosition, finalBossPositionY, 0.45, 0.45, 1);
     }
-    else if (final_boss_lives > 0 && final_boss_speed < 0) {
+    else if (finalBossLives > 0 && finalBossSpeed < 0) {
         let base_image = finalBossGraphics[finalBossGraphicsIndex];
 
-        // ctx.save();
-        // ctx.translate(base_image.width * 0.4, 0);
-        // ctx.scale(-1, 1);
-        // ctx.drawImage(base_image, -final_boss_position_x + backgroundPosition, final_boss_position_y, base_image.width * 0.45, base_image.height * 0.45);
-        // ctx.restore();
-
-        drawBackgroundObjectReverse(base_image, -final_boss_position_x + backgroundPosition, final_boss_position_y, 0.45, 0.45, 0.4, 1);
+        drawBackgroundObjectReverse(base_image, -finalBossPositionX + backgroundPosition, finalBossPositionY, 0.45, 0.45, 0.4, 1);
     }
     else {
-        drawBackgroundObject(images[20], final_boss_position_x - backgroundPosition, final_boss_position_y, 0.4, 0.4, 1);
+        drawBackgroundObject(images[20], finalBossPositionX - backgroundPosition, finalBossPositionY, 0.4, 0.4, 1);
 
         let timePassed = new Date().getTime() - bossDefeatedAt;
-        final_boss_position_x += (timePassed / 100);
-        final_boss_position_y -= (timePassed / 100);
+        finalBossPositionX += (timePassed / 100);
+        finalBossPositionY -= (timePassed / 100);
     }
 
     ctx.font = '30px Bradley Hand ITC';
-    ctx.fillText(final_boss_lives, final_boss_position_x + 100 - backgroundPosition, final_boss_position_y + 50);
+    ctx.fillText(finalBossLives, finalBossPositionX + 100 - backgroundPosition, finalBossPositionY + 50);
 
 }
 
+/**
+ * Handles the thrown bottle drawing
+ */
 function drawBottleThrow() {
     if (bottleThrowTime > 0) {
         let timePassedSinceThrow = new Date().getTime() - bottleThrowTime;
         let gravity = Math.pow(9.81, timePassedSinceThrow / 300);
-        thrownBottleX = character_x + 100 + (timePassedSinceThrow);
+        thrownBottleX = characterX + 100 + (timePassedSinceThrow);
         thrownBottleY = 360 - (timePassedSinceThrow * 0.4 - gravity);
 
         drawBackgroundObject(images[11], thrownBottleX, thrownBottleY, 0.25, 0.25, 1);
     }
 }
 
+/**
+ * Handles the tabasco bottle drawing when on the ground
+ */
 function drawBottles() {
 
     for (let i = 0; i < placedBottles.length; i++) {
@@ -549,6 +578,9 @@ function drawBottles() {
 
 }
 
+/**
+ * Handles the background drawing
+ */
 function drawBackground() {
 
     drawBackgroundObject(images[4], 0, 0, 0.534, 0.534, 1);
@@ -574,6 +606,16 @@ function drawBackground() {
 
 }
 
+/**
+ * Help function for drawing
+ * 
+ * @param {string} src 
+ * @param {number} offsetX 
+ * @param {number} offsetY 
+ * @param {number} scaleX 
+ * @param {number} scaleY 
+ * @param {number} opacity 
+ */
 function drawBackgroundObject(src, offsetX, offsetY, scaleX, scaleY, opacity) {
 
     if (opacity != undefined) {
@@ -589,6 +631,17 @@ function drawBackgroundObject(src, offsetX, offsetY, scaleX, scaleY, opacity) {
 
 }
 
+/**
+ * Help function for drawing images with horizontal axis flipped
+ * 
+ * @param {string} src 
+ * @param {number} offsetX 
+ * @param {number} offsetY 
+ * @param {number} scaleX 
+ * @param {number} scaleY 
+ * @param {number} translateX 
+ * @param {number} opacity 
+ */
 function drawBackgroundObjectReverse(src, offsetX, offsetY, scaleX, scaleY, translateX, opacity) {
 
     if (opacity != undefined) {
@@ -614,6 +667,9 @@ function drawBackgroundObjectReverse(src, offsetX, offsetY, scaleX, scaleY, tran
 
 }
 
+/**
+ * Handles the chicken drawing
+ */
 function drawChicken() {
 
     for (let i = 0; i < chickens.length; i++) {
@@ -654,6 +710,14 @@ function drawChicken() {
 
 }
 
+/**
+ * Creates and returns JSON for the chickens array
+ * 
+ * @param {number} type 
+ * @param {number} position_x 
+ * @param {number} position_y 
+ * @returns JSON
+ */
 function createChicken(type, position_x, position_y) {
     return {
         'type': type,
@@ -666,11 +730,14 @@ function createChicken(type, position_x, position_y) {
     }
 }
 
+/**
+ * Handles the UI drawing
+ */
 function drawUI() {
 
     for (let i = 80; i >= 0; i = i - 20) {
 
-        if (character_lives > i) {
+        if (characterLives > i) {
             let index = (i * (1 / 20)) + 30;
             drawBackgroundObject(images[index], 10, 0, 0.4, 0.4, 1);
             break;
@@ -678,15 +745,15 @@ function drawUI() {
 
     }
 
-    if (character_lives <= 0) {
+    if (characterLives <= 0) {
         drawBackgroundObject(images[29], 10, 0, 0.4, 0.4, 1);
     }
 
     ctx.font = '30px Bradley Hand ITC';
-    ctx.fillText(character_lives, 120, 50);
+    ctx.fillText(characterLives, 120, 50);
 
-    if (tabasco_juice <= 4) {
-        let index = tabasco_juice + 5;
+    if (tabascoJuice <= 4) {
+        let index = tabascoJuice + 5;
         drawBackgroundObject(images[index], 10, 60, 0.4, 0.4, 1);
     }
     else {
@@ -694,29 +761,32 @@ function drawUI() {
     }
 
     ctx.font = '30px Bradley Hand ITC';
-    ctx.fillText(tabasco_juice, 120, 110);
+    ctx.fillText(tabascoJuice, 120, 110);
 
 }
 
+/**
+ * Listens for pressed keys to control the game
+ */
 function listenForKeys() {
 
     document.addEventListener('keydown', e => {
 
         const k = e.key;
 
-        if (k == 'ArrowRight' && game_finished == false) {
+        if (k == 'ArrowRight' && gameFinished == false) {
             isMovingRight = true;
         }
 
-        if (k == 'ArrowLeft' && game_finished == false) {
+        if (k == 'ArrowLeft' && gameFinished == false) {
             isMovingLeft = true;
         }
 
-        if (k == 'd' && game_finished == false) {
-            if (tabasco_juice > 0) {
+        if (k == 'd' && gameFinished == false) {
+            if (tabascoJuice > 0) {
                 let timePassed = new Date().getTime() - bottleThrowTime;
                 if (timePassed > 1000) {
-                    tabasco_juice--;
+                    tabascoJuice--;
                     bottleThrowTime = new Date().getTime();
                 }
             }
@@ -724,7 +794,7 @@ function listenForKeys() {
 
         let timePassedSinceJump = new Date().getTime() - lastJumpStarted;
 
-        if (e.code == 'Space' && timePassedSinceJump > JUMP_TIME * 2 && game_finished == false) {
+        if (e.code == 'Space' && timePassedSinceJump > JUMP_TIME * 2 && gameFinished == false) {
             AUDIO_JUMPING.play();
             lastJumpStarted = new Date().getTime();
         }
