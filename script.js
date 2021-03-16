@@ -61,6 +61,7 @@ let finalBossPositionX = 2000;
 let finalBossPositionY = 0;
 let finalBossSpeed = (Math.random() * 10) + 1;
 let finalBossLives = 100;
+let finalBossHurtAt = 0;
 let bossDefeatedAt = 0;
 let finalBossGraphicsIndex = 0;
 
@@ -272,6 +273,7 @@ function checkForCollisionBottleWithFinalBoss() {
         if (thrownBottleY + 500 > finalBossPositionY && thrownBottleY - 500 < finalBossPositionY) {
             if (finalBossLives > 0) {
                 finalBossLives -= 10;
+                finalBossHurtAt = new Date().getTime();
             }
 
             if (finalBossLives == 0 && bossDefeatedAt == 0) {
@@ -646,7 +648,7 @@ function drawFinalBoss() {
 
         if (finalBossLives > i && bossDefeatedAt == 0) {
             let index = (i * (1 / 20)) + 13;
-            drawBackgroundObject(images[index], finalBossPositionX - backgroundPosition, finalBossPositionY, 0.4, 0.4, 1);
+            drawBackgroundObject(images[index], finalBossPositionX - backgroundPosition, finalBossPositionY + 30, 0.4, 0.4, 1);
             break;
         }
 
@@ -655,7 +657,7 @@ function drawFinalBoss() {
     drawFinalBossGraphic();
 
     ctx.font = '30px Bradley Hand ITC';
-    ctx.fillText(finalBossLives, finalBossPositionX + 100 - backgroundPosition, finalBossPositionY + 50);
+    ctx.fillText(finalBossLives, finalBossPositionX + 100 - backgroundPosition, finalBossPositionY + 80);
 
 }
 
@@ -664,20 +666,25 @@ function drawFinalBoss() {
  */
 function drawFinalBossGraphic() {
 
-    if (finalBossLives > 0 && finalBossSpeed > 0) {
+    let currentTime = new Date().getTime();
+
+    if (finalBossLives > 0 && finalBossSpeed > 0 && (currentTime - finalBossHurtAt > 500)) {
         drawBackgroundObject(finalBossGraphics[finalBossGraphicsIndex], finalBossPositionX - backgroundPosition, finalBossPositionY, 0.45, 0.45, 1);
     }
-    else if (finalBossLives > 0 && finalBossSpeed < 0) {
+    else if (finalBossLives > 0 && finalBossSpeed < 0 && (currentTime - finalBossHurtAt > 500)) {
         let base_image = finalBossGraphics[finalBossGraphicsIndex];
 
         drawBackgroundObjectReverse(base_image, -finalBossPositionX + backgroundPosition, finalBossPositionY, 0.45, 0.45, 0.4, 1);
     }
-    else {
+    else if ((currentTime - finalBossHurtAt > 500)) {
         drawBackgroundObject(images[20], finalBossPositionX - backgroundPosition, finalBossPositionY, 0.4, 0.4, 1);
 
         let timePassed = new Date().getTime() - bossDefeatedAt;
         finalBossPositionX += (timePassed / 100);
         finalBossPositionY -= (timePassed / 100);
+    }
+    else if ((currentTime - finalBossHurtAt < 500)) {
+        drawBackgroundObject(images[19], finalBossPositionX - backgroundPosition, finalBossPositionY, 0.4, 0.4, 1);
     }
 
 }
