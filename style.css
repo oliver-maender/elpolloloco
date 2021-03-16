@@ -3,10 +3,27 @@ body {
     background-color: #cccccc;
 }
 
+#info-box {
+    font-size: 3rem;
+    font-weight: bold;
+    color: red;
+    animation: pulse 1s alternate infinite;
+    margin-left: 16px;
+}
+
 .controls {
     display: flex;
     flex-direction: column;
     font-size: 2rem;
     margin-top: 16px;
     margin-left: 16px;
+}
+
+@keyframes pulse {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
