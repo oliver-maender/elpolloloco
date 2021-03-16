@@ -9,6 +9,7 @@ let characterX = 100;
 let characterY = 150;
 let characterLives = 100;
 let tabascoJuice = 0;
+let coinValue = 0;
 let isMovingRight = false;
 let isMovingLeft = false;
 let lastMove = 'right';
@@ -40,10 +41,13 @@ let AUDIO_BOTTLE = new Audio('./audio/bottle_beta.mp3');
 let intervalTime = (Math.random() * 1300) + 200;
 let intervals = [];
 
-let imagePaths = ['./img/background/background1/complete.png', './img/background/background2/complete.png', './img/background/background3/complete.png', './img/background/clouds/complete.png', './img/background/sky.png', './img/bottle/juice/juice_0.png', './img/bottle/juice/juice_20.png', './img/bottle/juice/juice_40.png', './img/bottle/juice/juice_60.png', './img/bottle/juice/juice_80.png', './img/bottle/juice/juice_100.png', './img/bottle/bottle.png', './img/caminata/lives/lives_0.png', './img/caminata/lives/lives_20.png', './img/caminata/lives/lives_40.png', './img/caminata/lives/lives_60.png', './img/caminata/lives/lives_80.png', './img/caminata/lives/lives_100.png', './img/caminata/G2.png', './img/caminata/G21.png', './img/caminata/G26.png', './img/gallinita/gallinita_centro.png', './img/gallinita/gallinita_muerte.png', './img/gallinita/gallinita_paso_derecho.png', './img/gallinita/gallinita_paso_izquierdo.png', './img/pepe/idle/I-1.png', './img/pepe/idle/I-4.png', './img/pepe/idle/I-7.png', './img/pepe/idle/I-10.png', './img/pepe/lives/lives_0.png', './img/pepe/lives/lives_20.png', './img/pepe/lives/lives_40.png', './img/pepe/lives/lives_60.png', './img/pepe/lives/lives_80.png', './img/pepe/lives/lives_100.png', './img/pepe/walking/W-21.png', './img/pepe/walking/W-22.png', './img/pepe/walking/W-23.png', './img/pepe/walking/W-24.png', './img/pepe/walking/W-25.png', './img/pepe/walking/W-26.png', './img/pollito/pollito_centro.png', './img/pollito/pollito_muerte.png', './img/pollito/pollito_paso_derecho.png', './img/pollito/pollito_paso_izquierdo.png', './img/caminata/G1.png', './img/caminata/G3.png', './img/pepe/hurt/H-41.png', './img/pepe/jumping/J-33.png', './img/gameover/game_over.png', './img/start/start01.png'];
+let imagePaths = ['./img/background/background1/complete.png', './img/background/background2/complete.png', './img/background/background3/complete.png', './img/background/clouds/complete.png', './img/background/sky.png', './img/bottle/juice/juice_0.png', './img/bottle/juice/juice_20.png', './img/bottle/juice/juice_40.png', './img/bottle/juice/juice_60.png', './img/bottle/juice/juice_80.png', './img/bottle/juice/juice_100.png', './img/bottle/bottle.png', './img/caminata/lives/lives_0.png', './img/caminata/lives/lives_20.png', './img/caminata/lives/lives_40.png', './img/caminata/lives/lives_60.png', './img/caminata/lives/lives_80.png', './img/caminata/lives/lives_100.png', './img/caminata/G2.png', './img/caminata/G21.png', './img/caminata/G26.png', './img/gallinita/gallinita_centro.png', './img/gallinita/gallinita_muerte.png', './img/gallinita/gallinita_paso_derecho.png', './img/gallinita/gallinita_paso_izquierdo.png', './img/pepe/idle/I-1.png', './img/pepe/idle/I-4.png', './img/pepe/idle/I-7.png', './img/pepe/idle/I-10.png', './img/pepe/lives/lives_0.png', './img/pepe/lives/lives_20.png', './img/pepe/lives/lives_40.png', './img/pepe/lives/lives_60.png', './img/pepe/lives/lives_80.png', './img/pepe/lives/lives_100.png', './img/pepe/walking/W-21.png', './img/pepe/walking/W-22.png', './img/pepe/walking/W-23.png', './img/pepe/walking/W-24.png', './img/pepe/walking/W-25.png', './img/pepe/walking/W-26.png', './img/pollito/pollito_centro.png', './img/pollito/pollito_muerte.png', './img/pollito/pollito_paso_derecho.png', './img/pollito/pollito_paso_izquierdo.png', './img/caminata/G1.png', './img/caminata/G3.png', './img/pepe/hurt/H-41.png', './img/pepe/jumping/J-33.png', './img/gameover/game_over.png', './img/start/start01.png', './img/coins/coin.png', './img/coins/value/coins_0.png', './img/coins/value/coins_20.png', './img/coins/value/coins_40.png', './img/coins/value/coins_60.png', './img/coins/value/coins_80.png', './img/coins/value/coins_100.png'];
 let images = [];
 
 let placedBottles = [500, 900, 1400, 1700, 2200, 2500];
+
+let placedCoinsX = [200, 300, 400, 500, 600];
+let placedCoinsY = [250, 200, 150, 200, 250];
 
 // chickens
 
@@ -187,6 +191,7 @@ function checkForCollision() {
         checkForCollisionWithBottles();
         checkForCollisionBottleWithFinalBoss();
         checkForCollisionWithFinalBoss();
+        checkForCollisionWithCoins();
 
     }, 100));
 
@@ -237,6 +242,24 @@ function checkForCollisionWithBottles() {
             }
         }
     }
+
+}
+
+/**
+ * Checks for the positions of all coins and handles them
+ */
+function  checkForCollisionWithCoins() {
+
+    for (let i = 0; i < placedCoinsX.length; i++) {
+        let coin = placedCoinsX[i];
+        let coin_x = coin - backgroundPosition;
+
+        if ((coin_x - 50) < characterX && (coin_x + 0) > characterX) {
+                placedCoinsX.splice(i, 1);
+                placedCoinsY.splice(i, 1);
+                coinValue++;
+        }
+    }    
 
 }
 
@@ -553,6 +576,7 @@ function draw() {
     updateCharacter();
     drawChicken();
     drawBottles();
+    drawCoins();
     drawBottleThrow();
     drawUI();
 
@@ -682,6 +706,22 @@ function drawBottles() {
         let bottle_x = placedBottles[i];
 
         drawBackgroundObject(images[11], bottle_x - backgroundPosition, 420, 0.25, 0.25, 1);
+
+    }
+
+}
+
+/**
+ * Handles the coin drawing
+ */
+function drawCoins() {
+
+    for (let i = 0; i < placedCoinsX.length; i++) {
+
+        let coin_x = placedCoinsX[i];
+        let coin_y = placedCoinsY[i];
+
+        drawBackgroundObject(images[51], coin_x - backgroundPosition, coin_y, 1, 1, 1);
 
     }
 
@@ -820,6 +860,7 @@ function drawUI() {
 
     drawUICharacterLives();
     drawUITabascoJuice();
+    drawUICoins();
 
 }
 
@@ -862,6 +903,26 @@ function drawUITabascoJuice() {
 
     ctx.font = '30px Bradley Hand ITC';
     ctx.fillText(tabascoJuice, 120, 110);
+
+}
+
+/**
+ * Handles the UI for the coins
+ */
+function drawUICoins() {
+
+    if (coinValue <= 4) {
+        let index = coinValue + 52;
+        drawBackgroundObject(images[index], 10, 120, 0.4, 0.4, 1);
+    }
+    else {
+        drawBackgroundObject(images[57], 10, 120, 0.4, 0.4, 1);
+    }
+
+    ctx.font = '30px Bradley Hand ITC';
+    ctx.fillText(coinValue, 120, 170);
+
+    
 
 }
 
