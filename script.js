@@ -620,10 +620,15 @@ function drawFinalBoss() {
 
     for (let i = 80; i >= 0; i = i - 20) {
 
-        drawFinalBossUI();
-        drawFinalBossGraphic();
+        if (finalBossLives > i && bossDefeatedAt == 0) {
+            let index = (i * (1 / 20)) + 13;
+            drawBackgroundObject(images[index], finalBossPositionX - backgroundPosition, finalBossPositionY, 0.4, 0.4, 1);
+            break;
+        }
 
     }
+
+    drawFinalBossGraphic();
 
     ctx.font = '30px Bradley Hand ITC';
     ctx.fillText(finalBossLives, finalBossPositionX + 100 - backgroundPosition, finalBossPositionY + 50);
@@ -649,19 +654,6 @@ function drawFinalBossGraphic() {
         let timePassed = new Date().getTime() - bossDefeatedAt;
         finalBossPositionX += (timePassed / 100);
         finalBossPositionY -= (timePassed / 100);
-    }
-
-}
-
-/**
- * Draws all the UI corresponding to the final boss
- */
-function drawFinalBossUI() {
-
-    if (finalBossLives > i && bossDefeatedAt == 0) {
-        let index = (i * (1 / 20)) + 13;
-        drawBackgroundObject(images[index], finalBossPositionX - backgroundPosition, finalBossPositionY, 0.4, 0.4, 1);
-        break;
     }
 
 }
