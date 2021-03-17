@@ -15,6 +15,7 @@ let isMovingLeft = false;
 let lastMove = 'right';
 let lastJumpStarted = 0;
 let isJumping = false;
+let jumpsHigher = false;
 let characterHurtAt = 0;
 let characterLostAt = 0;
 let currentCharacterImage;
@@ -26,14 +27,13 @@ let characterWalkingGraphics = [];
 
 // general
 
-let animationChangeIndex = 0;
 let bottleThrowTime = 0;
 let thrownBottleX;
 let thrownBottleY;
 let gameFinished = false;
 
 let JUMP_TIME = 300; // in ms
-let GAME_SPEED = 0.5;
+let GAME_SPEED = 5;
 let AUDIO_RUNNING = new Audio('./audio/running.mp3');
 let AUDIO_JUMPING = new Audio('./audio/jumping.mp3');
 let AUDIO_BOTTLE = new Audio('./audio/bottle_beta.mp3');
@@ -46,7 +46,7 @@ let images = [];
 
 let placedBottles = [500, 900, 1400, 1700, 2200, 2500];
 
-let placedCoinsX = [200, 300, 400, 500, 600];
+let placedCoinsX = [500, 600, 700, 800, 900];
 let placedCoinsY = [250, 200, 150, 200, 250];
 
 // chickens
@@ -57,7 +57,7 @@ let chickenType2Graphics = [];
 
 // final boss
 
-let finalBossPositionX = 2000;
+let finalBossPositionX = 4000;
 let finalBossPositionY = 0;
 let finalBossSpeed = (Math.random() * 10) + 1;
 let finalBossLives = 100;
@@ -83,17 +83,25 @@ function init() {
 }
 
 /**
+ * Requests fullscreen from browser
+ */
+function goFullscreen() {
+    let element = document.getElementById('canvas');
+    element.requestFullscreen();
+}
+
+/**
  * Creates and draws on the canvas before the game gets loaded
  */
 function drawStartScreen() {
 
-    let startInterval = setInterval(function() {
+    let startInterval = setInterval(function () {
 
-    if (images.length == imagePaths.length) {
-        canvas = document.getElementById('canvas');
-        ctx = canvas.getContext("2d");
-        drawBackgroundObject(images[50], 0, 0, 0.534, 0.534, 1);
-    }
+        if (images.length == imagePaths.length) {
+            canvas = document.getElementById('canvas');
+            ctx = canvas.getContext("2d");
+            drawBackgroundObject(images[50], 0, 0, 0.534, 0.534, 1);
+        }
 
     }, 50);
 
@@ -115,10 +123,11 @@ function startGame() {
     calculateCloudOffset();
     calculateChickenPosition();
     calculateFinalBossPosition();
-    calculateAnimationChange();
+    // calculateAnimationChange();
     listenForKeys();
     checkForRunning();
     checkForCollision();
+    checkForJump();
 
     draw();
 
@@ -150,24 +159,6 @@ function preloadImages() {
  */
 function calculateSpeed() {
     return (Math.random() * 20) - 10;
-}
-
-/**
- * Is used to slow down the change speed of graphics
- */
-function calculateAnimationChange() {
-
-    intervals.push(setInterval(function () {
-
-        if (animationChangeIndex < 200) {
-            animationChangeIndex++;
-        }
-        else {
-            animationChangeIndex = 0;
-        }
-
-    }, 50));
-
 }
 
 // function checkBackgroundImageCache(src_path) {
@@ -249,18 +240,19 @@ function checkForCollisionWithBottles() {
 /**
  * Checks for the positions of all coins and handles them
  */
-function  checkForCollisionWithCoins() {
+function checkForCollisionWithCoins() {
 
     for (let i = 0; i < placedCoinsX.length; i++) {
         let coin = placedCoinsX[i];
         let coin_x = coin - backgroundPosition;
+        let coin_y = placedCoinsY[i];
 
-        if ((coin_x - 50) < characterX && (coin_x + 0) > characterX) {
-                placedCoinsX.splice(i, 1);
-                placedCoinsY.splice(i, 1);
-                coinValue++;
+        if ((coin_x - 50) < characterX && (coin_x + 0) > characterX && (coin_y - 60) > characterY && (coin_y - 500) < characterY) {
+            placedCoinsX.splice(i, 1);
+            placedCoinsY.splice(i, 1);
+            coinValue++;
         }
-    }    
+    }
 
 }
 
@@ -358,14 +350,14 @@ function calculateIndividualChickenPosition(iterations) {
 
         chicken.position_x = chicken.position_x - chicken.speed;
 
-        if (animationChangeIndex % (11 - Math.round(Math.abs(chicken.speed))) == 0) {
+        if (iterations % (11 - Math.round(Math.abs(chicken.speed))) == 0) {
             chicken.graphInd++;
         }
 
         chicken.graphInd = chicken.graphInd % chickenType1Graphics.length;
 
     }
-    
+
 }
 
 /**
@@ -381,7 +373,7 @@ function calculateFinalBossPosition() {
             finalBossSpeed = calculateSpeed();
         }
 
-        calculateFinalBossPositionAndAnimation();
+        calculateFinalBossPositionAndAnimation(iterations);
 
         if (iterations < 50) {
             iterations++;
@@ -396,13 +388,13 @@ function calculateFinalBossPosition() {
 /**
  * Calculates the position of the final boss and controls the animation
  */
-function calculateFinalBossPositionAndAnimation() {
-    
-    if (!((finalBossPositionX < 1500 && finalBossSpeed > 0) || (finalBossPositionX > 2500 && finalBossSpeed < 0))) {
+function calculateFinalBossPositionAndAnimation(iterations) {
+
+    if (!((finalBossPositionX < 3000 && finalBossSpeed > 0) || (finalBossPositionX > 4500 && finalBossSpeed < 0))) {
         finalBossPositionX = finalBossPositionX - finalBossSpeed;
     }
 
-    if (animationChangeIndex % (11 - Math.round(Math.abs(finalBossSpeed))) == 0) {
+    if (iterations % (11 - Math.round(Math.abs(finalBossSpeed))) == 0) {
         finalBossGraphicsIndex++;
     }
 
@@ -435,7 +427,7 @@ function updateCharacter() {
 
     let base_image = currentCharacterImage;
 
-    checkForJump();
+    // checkForJump();
 
     if (base_image.complete) {
         drawStanding(base_image);
@@ -449,19 +441,28 @@ function updateCharacter() {
  */
 function checkForJump() {
 
-    let timePassedSinceJump = new Date().getTime() - lastJumpStarted;
+    intervals.push(setInterval(function () {
 
-    if (timePassedSinceJump < JUMP_TIME) {
-        if (isJumping == false) {
-            isJumping = true;
-            drawJump();
+        if (jumpsHigher == true) {
+                if (isJumping == false) {
+                    drawJump();
+                    isJumping = true;
+                }
+                if (characterY < 20) {
+                    jumpsHigher = false;
+                }
+                characterY = characterY - 10;
         }
-        characterY = characterY - 4;
-    } else {
-        if (characterY < 150) {
-            characterY = characterY + 4;
+        else {
+            if (characterY < 150) {
+                characterY = characterY + 10;
+            }
+            else {
+                isJumping = false;
+            }
         }
-    }
+
+    }, 20));
 
 }
 
@@ -506,14 +507,23 @@ function checkForRunning() {
 
     currentCharacterImage = characterIdleGraphics[0];
 
+    let iterations = 0;
+
     intervals.push(setInterval(function () {
 
         let currentTime = new Date().getTime();
 
-        checkForWalking(currentTime);
+        checkForWalking(currentTime, iterations);
         checkForStanding(currentTime);
 
-    }, 50));
+        if (iterations < 10) {
+            iterations++;
+        }
+        else {
+            iterations = 0
+        }
+
+    }, 20));
 
 }
 
@@ -522,20 +532,29 @@ function checkForRunning() {
  * 
  * @param {number} currentTime 
  */
-function checkForWalking(currentTime) {
+function checkForWalking(currentTime, iterations) {
 
     if ((isMovingRight || isMovingLeft) && (currentTime - characterHurtAt > 500) && isJumping == false) {
 
         AUDIO_RUNNING.play();
 
-        let index = characterWalkingGraphicsIndex % characterWalkingGraphics.length;
-
-        if (animationChangeIndex % 3 == 0) {
+        if (iterations == 0) {
             characterWalkingGraphicsIndex++;
         }
 
+        let index = characterWalkingGraphicsIndex % characterWalkingGraphics.length;
+
         currentCharacterImage = characterWalkingGraphics[index];
 
+    }
+
+    if (isMovingLeft) {
+        if (backgroundPosition > 0) {
+            backgroundPosition = backgroundPosition - GAME_SPEED;
+        }
+    }
+    if (isMovingRight) {
+        backgroundPosition = backgroundPosition + GAME_SPEED;
     }
 
 }
@@ -614,12 +633,6 @@ function clearIntervals() {
 function drawJump() {
 
     currentCharacterImage = images[48];
-
-    setTimeout(function () {
-
-        isJumping = false;
-
-    }, 500);
 
 }
 
@@ -728,7 +741,7 @@ function drawCoins() {
         let coin_x = placedCoinsX[i];
         let coin_y = placedCoinsY[i];
 
-        drawBackgroundObject(images[51], coin_x - backgroundPosition, coin_y, 1, 1, 1);
+        drawBackgroundObject(images[51], coin_x - backgroundPosition, coin_y, 0.5, 0.5, 1);
 
     }
 
@@ -746,15 +759,6 @@ function drawBackground() {
         drawBackgroundObject(images[2], (0 - backgroundPosition) + canvas.width * i, 0, 0.534, 0.534, 1);
         drawBackgroundObject(images[1], (0 - backgroundPosition) + canvas.width * i, 0, 0.534, 0.534, 1);
         drawBackgroundObject(images[0], (0 - backgroundPosition) + canvas.width * i, 0, 0.534, 0.534, 1);
-
-        if (isMovingLeft) {
-            if (backgroundPosition > 0) {
-                backgroundPosition = backgroundPosition - GAME_SPEED;
-            }
-        }
-        if (isMovingRight) {
-            backgroundPosition = backgroundPosition + GAME_SPEED;
-        }
     }
 }
 
@@ -929,7 +933,7 @@ function drawUICoins() {
     ctx.font = '30px Bradley Hand ITC';
     ctx.fillText(coinValue, 120, 170);
 
-    
+
 
 }
 
@@ -965,6 +969,7 @@ function listenForKeys() {
         if (e.code == 'Space' && timePassedSinceJump > JUMP_TIME * 2 && gameFinished == false) {
             AUDIO_JUMPING.play();
             lastJumpStarted = new Date().getTime();
+            jumpsHigher = true;
         }
 
     });
