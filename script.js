@@ -1021,36 +1021,6 @@ function handleGame(e) {
         let currentTime = new Date().getTime();
         let timePassedSinceJump = currentTime - lastJumpStarted;
 
-        // if (e.targetTouches.length == 2) {
-
-        //     if (timePassedSinceJump > JUMP_TIME * 2 && gameFinished == false && (e.targetTouches[1].clientY < (screen.height / 2))) {
-        //         AUDIO_JUMPING.play();
-        //         lastJumpStarted = new Date().getTime();
-        //         jumpsHigher = true;
-        //     }
-
-        // }
-
-        // if (e.targetTouches.length == 1) {
-
-        //     if (timePassedSinceJump > JUMP_TIME * 2 && gameFinished == false && (e.targetTouches[0].clientY < (screen.height / 2))) {
-        //         AUDIO_JUMPING.play();
-        //         lastJumpStarted = new Date().getTime();
-        //         jumpsHigher = true;
-        //     }
-
-        //     if ((currentTime - lastTap < 250) && e.targetTouches[0].clientY > (screen.height / 2)) {
-        //         if (tabascoJuice > 0) {
-        //             let timePassed = new Date().getTime() - bottleThrowTime;
-        //             if (timePassed > 1000) {
-        //                 tabascoJuice--;
-        //                 bottleThrowTime = new Date().getTime();
-        //             }
-        //         }
-        //     }
-
-        // }
-
         for (let i = 0; i < e.touches.length; i++) {
             
             if (e.targetTouches[i].clientY < (screen.height / 2)) {
@@ -1073,10 +1043,6 @@ function handleGame(e) {
             
         }
 
-        // if (e.targetTouches[0].clientY > (screen.height / 2)) {
-        //     lastTap = new Date().getTime();
-        // }
-
         e.preventDefault();
 
     }
@@ -1091,12 +1057,6 @@ function handleMove(e) {
     for (let i = 0; i < e.touches.length; i++) {
         touchPosY.push(e.touches[i].pageY);
     }
-
-    // if(touchPosY.length > 0) {
-    //     setTimeout(function() {
-            
-    //     }, 200);
-    // }
 
     if (touchPosY[0] > touchPosY[touchPosY.length - 1] + 50) {
 
