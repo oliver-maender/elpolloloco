@@ -3,15 +3,23 @@ body {
     background-color: #cccccc;
 }
 
-.mobile {
-    display: none;
+#fullscreen-info {
+    font-size: 3rem;
+    font-weight: bold;
+    color: red;
+    margin-left: 16px;
+}
+
+.fullscreen {
+    margin: 16px;
 }
 
 #fullscreen-btn {
     font-family: "Bradley Hand ITC";
     border: none;
-    border-radius: 4px;
+    border-radius: 8px;
     font-size: 2rem;
+    padding: 16px;
     cursor: pointer;
 }
 
@@ -47,27 +55,8 @@ body {
 
 @media(max-width: 1050px) {
 
-    .mobile {
-        display: block;
-        font-size: 3rem;
-        color: red;
-        font-weight: bold;
-    }
-
-    #canvas {
-        display: none;
-    }
-
-    .fullscreen {
-        display: none;
-    }
-
-    #info-box {
-        display: none;
-    }
-
-    .controls {
-        display: none;
+    #fullscreen-btn {
+        font-size: 60px;
     }
 
 }

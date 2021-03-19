@@ -31,6 +31,7 @@ let bottleThrowTime = 0;
 let thrownBottleX;
 let thrownBottleY;
 let gameFinished = false;
+let lastTap = 0;
 
 let JUMP_TIME = 300; // in ms
 let GAME_SPEED = 5;
@@ -44,10 +45,12 @@ let intervals = [];
 let imagePaths = ['./img/background/background1/complete.png', './img/background/background2/complete.png', './img/background/background3/complete.png', './img/background/clouds/complete.png', './img/background/sky.png', './img/bottle/juice/juice_0.png', './img/bottle/juice/juice_20.png', './img/bottle/juice/juice_40.png', './img/bottle/juice/juice_60.png', './img/bottle/juice/juice_80.png', './img/bottle/juice/juice_100.png', './img/bottle/bottle.png', './img/caminata/lives/lives_0.png', './img/caminata/lives/lives_20.png', './img/caminata/lives/lives_40.png', './img/caminata/lives/lives_60.png', './img/caminata/lives/lives_80.png', './img/caminata/lives/lives_100.png', './img/caminata/G2.png', './img/caminata/G21.png', './img/caminata/G26.png', './img/gallinita/gallinita_centro.png', './img/gallinita/gallinita_muerte.png', './img/gallinita/gallinita_paso_derecho.png', './img/gallinita/gallinita_paso_izquierdo.png', './img/pepe/idle/I-1.png', './img/pepe/idle/I-4.png', './img/pepe/idle/I-7.png', './img/pepe/idle/I-10.png', './img/pepe/lives/lives_0.png', './img/pepe/lives/lives_20.png', './img/pepe/lives/lives_40.png', './img/pepe/lives/lives_60.png', './img/pepe/lives/lives_80.png', './img/pepe/lives/lives_100.png', './img/pepe/walking/W-21.png', './img/pepe/walking/W-22.png', './img/pepe/walking/W-23.png', './img/pepe/walking/W-24.png', './img/pepe/walking/W-25.png', './img/pepe/walking/W-26.png', './img/pollito/pollito_centro.png', './img/pollito/pollito_muerte.png', './img/pollito/pollito_paso_derecho.png', './img/pollito/pollito_paso_izquierdo.png', './img/caminata/G1.png', './img/caminata/G3.png', './img/pepe/hurt/H-41.png', './img/pepe/jumping/J-33.png', './img/gameover/game_over.png', './img/start/start01.png', './img/coins/coin.png', './img/coins/value/coins_0.png', './img/coins/value/coins_20.png', './img/coins/value/coins_40.png', './img/coins/value/coins_60.png', './img/coins/value/coins_80.png', './img/coins/value/coins_100.png'];
 let images = [];
 
-let placedBottles = [500, 900, 1400, 1700, 2200, 2500];
+let placedBottles = [500, 900, 1100, 1300, 1400, 1700, 2200, 2500];
 
 let placedCoinsX = [500, 600, 700, 800, 900];
 let placedCoinsY = [250, 200, 150, 200, 250];
+
+let touchPosY = [];
 
 // chickens
 
@@ -109,6 +112,20 @@ function drawStartScreen() {
         clearInterval(startInterval);
         startGame();
     }, { once: true });
+
+    let element = document.getElementById('canvas');
+    element.addEventListener('touchstart', handleStart, { once: true });
+
+}
+
+function handleStart(e) {
+
+    if (e.touches) {
+
+        startGame();
+        clearInterval(startInterval);
+
+    }
 
 }
 
@@ -444,14 +461,14 @@ function checkForJump() {
     intervals.push(setInterval(function () {
 
         if (jumpsHigher == true) {
-                if (isJumping == false) {
-                    drawJump();
-                    isJumping = true;
-                }
-                if (characterY < 20) {
-                    jumpsHigher = false;
-                }
-                characterY = characterY - 10;
+            if (isJumping == false) {
+                drawJump();
+                isJumping = true;
+            }
+            if (characterY < 20) {
+                jumpsHigher = false;
+            }
+            characterY = characterY - 10;
         }
         else {
             if (characterY < 150) {
@@ -972,6 +989,8 @@ function listenForKeys() {
             jumpsHigher = true;
         }
 
+        e.preventDefault();
+
     });
 
     document.addEventListener('keyup', e => {
@@ -987,5 +1006,150 @@ function listenForKeys() {
         }
 
     });
+
+    let element = document.getElementById('canvas');
+    element.addEventListener('touchstart', handleGame);
+    element.addEventListener('touchend', handleStop);
+    element.addEventListener('touchmove', handleMove);
+
+}
+
+function handleGame(e) {
+
+    if (e.touches) {
+
+        let currentTime = new Date().getTime();
+        let timePassedSinceJump = currentTime - lastJumpStarted;
+
+        // if (e.targetTouches.length == 2) {
+
+        //     if (timePassedSinceJump > JUMP_TIME * 2 && gameFinished == false && (e.targetTouches[1].clientY < (screen.height / 2))) {
+        //         AUDIO_JUMPING.play();
+        //         lastJumpStarted = new Date().getTime();
+        //         jumpsHigher = true;
+        //     }
+
+        // }
+
+        // if (e.targetTouches.length == 1) {
+
+        //     if (timePassedSinceJump > JUMP_TIME * 2 && gameFinished == false && (e.targetTouches[0].clientY < (screen.height / 2))) {
+        //         AUDIO_JUMPING.play();
+        //         lastJumpStarted = new Date().getTime();
+        //         jumpsHigher = true;
+        //     }
+
+        //     if ((currentTime - lastTap < 250) && e.targetTouches[0].clientY > (screen.height / 2)) {
+        //         if (tabascoJuice > 0) {
+        //             let timePassed = new Date().getTime() - bottleThrowTime;
+        //             if (timePassed > 1000) {
+        //                 tabascoJuice--;
+        //                 bottleThrowTime = new Date().getTime();
+        //             }
+        //         }
+        //     }
+
+        // }
+
+        for (let i = 0; i < e.touches.length; i++) {
+            
+            if (e.targetTouches[i].clientY < (screen.height / 2)) {
+                if (tabascoJuice > 0) {
+                    let timePassed = new Date().getTime() - bottleThrowTime;
+                    if (timePassed > 1000) {
+                        tabascoJuice--;
+                        bottleThrowTime = new Date().getTime();
+                    }
+                }
+            }
+
+            if (!isMovingRight && (e.targetTouches[i].clientX < (screen.width / 2) && e.targetTouches[i].clientY > (screen.height / 2))) {
+                isMovingLeft = true;
+            }
+
+            if (!isMovingLeft && (e.targetTouches[i].clientX > (screen.width / 2) && e.targetTouches[i].clientY > (screen.height / 2))) {
+                isMovingRight = true;
+            }
+            
+        }
+
+        // if (e.targetTouches[0].clientY > (screen.height / 2)) {
+        //     lastTap = new Date().getTime();
+        // }
+
+        e.preventDefault();
+
+    }
+
+}
+
+function handleMove(e) {
+
+    let currentTime = new Date().getTime();
+    let timePassedSinceJump = currentTime - lastJumpStarted;
+
+    for (let i = 0; i < e.touches.length; i++) {
+        touchPosY.push(e.touches[i].pageY);
+    }
+
+    // if(touchPosY.length > 0) {
+    //     setTimeout(function() {
+            
+    //     }, 200);
+    // }
+
+    if (touchPosY[0] > touchPosY[touchPosY.length - 1] + 50) {
+
+        for (let j = 0; j < e.touches.length; j++) {
+
+            if (timePassedSinceJump > JUMP_TIME * 2 && gameFinished == false) {
+                AUDIO_JUMPING.play();
+                lastJumpStarted = new Date().getTime();
+                jumpsHigher = true;
+            }
+
+        }
+    }
+
+    e.preventDefault();
+    
+}
+
+function handleStop(e) {
+
+    touchPosY = [];
+
+    if (e.touches) {
+
+        if (e.touches.length == 0) {
+
+            isMovingLeft = false;
+            isMovingRight = false;
+
+        }
+
+        else if (e.touches.length > 0 ) {
+
+            for (let i = 0; i < e.touches.length; i++) {
+
+                if((e.targetTouches[i].clientX > (screen.width / 2) && e.targetTouches[i].clientY > (screen.height / 2))) {
+                    isMovingLeft = false;
+                    isMovingRight = true;
+                }
+
+                if ((e.targetTouches[i].clientX < (screen.width / 2) && e.targetTouches[i].clientY > (screen.height / 2))) {
+
+                    isMovingRight = false;
+                    isMovingLeft = true;
+        
+                }
+                
+            }
+
+        }
+
+        e.preventDefault();
+
+    }
 
 }
