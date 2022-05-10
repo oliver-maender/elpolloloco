@@ -1,21 +1,30 @@
 body {
-    font-family: "Bradley Hand ITC";
-    background-color: #cccccc;
+    font-family: Bradley Hand ITC, Helvetica, sans-serif;
+    margin: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
 }
 
-#fullscreen-info {
-    font-size: 3rem;
+.game-info {
+    font-size: 1.5rem;
     font-weight: bold;
-    color: red;
-    margin-left: 16px;
+    margin-bottom: 32px;
+}
+
+.hints {
+    margin-top: 8px;
+    margin-bottom: 8px;
 }
 
 .fullscreen {
-    margin: 16px;
+    margin-top: 32px;
+    margin-bottom: 24px;
 }
 
-#fullscreen-btn {
-    font-family: "Bradley Hand ITC";
+.game-btn {
+    font-family: Bradley Hand ITC, Helvetica, sans-serif;
     border: none;
     border-radius: 8px;
     font-size: 2rem;
@@ -23,7 +32,7 @@ body {
     cursor: pointer;
 }
 
-#fullscreen-btn:hover {
+.game-btn:hover {
     background-color: rgb(180, 180, 180);
     transition: 225ms all ease-in-out;
 }
@@ -33,7 +42,12 @@ body {
     font-weight: bold;
     color: red;
     animation: pulse 1s alternate infinite;
-    margin-left: 16px;
+    /* margin-left: 16px; */
+}
+
+#game-explanation {
+    max-width: 1024px;
+    /* text-align: center; */
 }
 
 .controls {
@@ -41,13 +55,56 @@ body {
     flex-direction: column;
     font-size: 2rem;
     margin-top: 16px;
-    margin-left: 16px;
+    /* margin-left: 16px; */
 }
+
+.highlight-red {
+    color: red;
+}
+
+.both-controls {
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+}
+
+.controls {
+    margin-top: 32px;
+    margin-bottom: 32px;
+}
+
+.footer {
+    display: flex;
+    flex-direction: column;
+    margin-top: 32px;
+}
+
+.legal-notice-container {
+    font-family: Helvetica, sans-serif;
+    padding: 32px;
+}
+
+.legal-notice-container h1 {
+    font-size: 32px;
+    font-weight: 700;
+}
+
+.data-privacy-container {
+    font-family: Helvetica, sans-serif;
+    padding: 32px;
+}
+
+.data-privacy-container h1 {
+    font-size: 32px;
+    font-weight: 700;
+}
+
 
 @keyframes pulse {
     from {
         opacity: 0;
     }
+
     to {
         opacity: 1;
     }
@@ -57,6 +114,11 @@ body {
 
     #fullscreen-btn {
         font-size: 60px;
+    }
+
+    .both-controls {
+        flex-direction: column;
+        align-items: center;
     }
 
 }

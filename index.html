@@ -16,40 +16,56 @@
 
 <body onload="init()">
 
-    <h1>El Pollo Loco</h1>
+    <h1 id="website-headline">El Pollo Loco</h1>
+
+    <div class="game-info">
+        <p class="hints">Please use <span class="highlight-red">Google Chrome</span> for best performance. On <span
+                class="highlight-red">touch devices</span> also use <span class="highlight-red">fullscreen</span>.</p>
+        <p class="hints">The <span class="highlight-red">controls</span> and the <span class="highlight-red">goal of the
+                game</span> are explained further below.</p>
+    </div>
 
     <canvas id="canvas" width="1024px" height="576px"></canvas>
 
-    <div id="fullscreen-info">
-        <span>On touch devices please use fullscreen.</span>
-    </div>
-
     <div class="fullscreen">
-        <button id="fullscreen-btn" onclick="goFullscreen()">Fullscreen</button>
+        <button class="game-btn" onclick="goFullscreen()">Fullscreen</button>
+        <button class="game-btn" onclick="restartGame()">Restart</button>
     </div>
 
     <div id="info-box">
-        <span>Press any button or touch the game to start it!</span>
+        <span>Press any button or on mobile touch the game to start it!</span>
         <br>
     </div>
 
-    <div class="controls">
-        <span>For keyboard:</span>
-        <br>
-        <span><strong>Go left:</strong> Arrow left</span>
-        <span><strong>Go right:</strong> Arrow right</span>
-        <span><strong>Jump:</strong> Space</span>
-        <span><strong>Throw Bottle:</strong> d</span>
+    <div id="game-explanation" class="game-info">
+        <p>The goal of the game is to defeat 'El Pollo Loco' (the crazy chicken).<br>To achieve this you have to control
+            Pepe, collect the tabasco bottles, avoid the little chickens and at the end of the stage throw the tabasco
+            bottles at the big chicken which is 'El Pollo Loco'.</p>
     </div>
 
-    <div class="controls">
-        <br>
-        <span>For touch:</span>
-        <br>
-        <span><strong>Go left:</strong> Touch bottom left quarter</span>
-        <span><strong>Go right:</strong> Touch bottom right quarter</span>
-        <span><strong>Jump:</strong> Swipe up</span>
-        <span><strong>Throw Bottle:</strong> Tap top half</span>
+    <div class="both-controls">
+        <div class="controls">
+            <span>For keyboard:</span>
+            <br>
+            <span><strong>Go left:</strong> Arrow left</span>
+            <span><strong>Go right:</strong> Arrow right</span>
+            <span><strong>Jump:</strong> Space</span>
+            <span><strong>Throw Bottle:</strong> d</span>
+        </div>
+
+        <div class="controls">
+            <span>For touch:</span>
+            <br>
+            <span><strong>Go left:</strong> Touch bottom left quarter</span>
+            <span><strong>Go right:</strong> Touch bottom right quarter</span>
+            <span><strong>Jump:</strong> Swipe up</span>
+            <span><strong>Throw Bottle:</strong> Tap top half</span>
+        </div>
+    </div>
+
+    <div class="footer">
+        <a href="legal-notice.html">Impressum - Legal Notice</a>
+        <a href="data-privacy.html">Datenschutz - Data Privacy</a>
     </div>
 
 </body>
